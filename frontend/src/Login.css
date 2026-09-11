@@ -8,20 +8,18 @@
   min-height: 100vh;
   display: flex;
   font-family: "DM Sans", sans-serif;
-  background: #f6f0e7;
-  color: #173c2b;
+  background: #f8f2e9;
+  color: #1c4936;
 }
 
 
-/* =================================
-   LEFT SIDE
-================================= */
+
 
 .login-left {
   width: 45%;
   min-height: 100vh;
   padding: 50px 58px;
-  background: #174633;
+  background: #20533e;
   color: #f7f0e4;
   position: relative;
   overflow: hidden;
@@ -57,7 +55,7 @@
 }
 
 
-/* BRAND */
+
 
 .login-brand {
   display: flex;
@@ -92,7 +90,7 @@
 }
 
 
-/* LEFT CONTENT */
+
 
 .login-left-content {
   position: relative;
@@ -123,7 +121,7 @@
 }
 
 
-/* GOLD LINE */
+
 
 .login-gold-line {
   width: 82px;
@@ -135,7 +133,7 @@
 }
 
 
-/* IMAGE */
+
 
 .login-image {
   width: min(100%, 470px);
@@ -159,7 +157,7 @@
 }
 
 
-/* MINISTRY */
+
 
 .login-ministry {
   position: absolute;
@@ -174,9 +172,7 @@
 }
 
 
-/* =================================
-   RIGHT SIDE
-================================= */
+
 
 .login-right {
   width: 55%;
@@ -194,7 +190,7 @@
 }
 
 
-/* PORTAL LABEL */
+
 
 .login-portal-label {
   margin-bottom: 25px;
@@ -210,7 +206,7 @@
 }
 
 
-/* ICON */
+
 
 .login-icon {
   width: 52px;
@@ -230,7 +226,7 @@
 }
 
 
-/* HEADING */
+
 
 .login-form-container h2 {
   margin-bottom: 17px;
@@ -246,7 +242,7 @@
 }
 
 
-/* SUBTITLE */
+
 
 .login-subtitle {
   max-width: 430px;
@@ -260,9 +256,7 @@
 }
 
 
-/* =================================
-   INPUTS
-================================= */
+
 
 .login-input-group {
   margin-bottom: 20px;
@@ -334,7 +328,7 @@
 }
 
 
-/* EYE */
+
 
 .login-eye {
   padding: 0 18px;
@@ -351,9 +345,7 @@
 }
 
 
-/* =================================
-   REMEMBER / FORGOT
-================================= */
+
 
 .login-options {
   display: flex;
@@ -540,9 +532,7 @@
 }
 
 
-/* =================================
-   LOGIN BUTTON
-================================= */
+
 
 .login-button {
   width: 100%;
@@ -573,10 +563,15 @@
   box-shadow: 0 12px 25px rgba(23, 70, 51, 0.2);
 
   transition: 0.2s ease;
+  text-decoration: none;
+
 }
 
-.login-button span {
-  font-size: 20px;
+.login-button:link,
+.login-button:visited,
+.login-button:hover,
+.login-button:active {
+  text-decoration: none;
 }
 
 .login-button:hover {
@@ -586,9 +581,7 @@
 }
 
 
-/* =================================
-   REGISTER
-================================= */
+
 
 .register-text {
   margin-top: 22px;
@@ -607,9 +600,7 @@
 }
 
 
-/* =================================
-   DECORATION
-================================= */
+
 
 .login-decoration {
   display: flex;
@@ -632,9 +623,7 @@
 }
 
 
-/* =================================
-   RESPONSIVE
-================================= */
+
 
 @media (max-width: 900px) {
 

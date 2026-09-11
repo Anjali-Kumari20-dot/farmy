@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(60);
@@ -100,6 +102,35 @@ function Login() {
     setShowConfirmNewPassword(false);
   };
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    if (phoneNumber.length !== 10 || !/^\d{10}$/.test(phoneNumber)) {
+      setOtpError("Mobile number must contain exactly 10 digits.");
+      return;
+    }
+
+    if (!password.trim()) {
+      setOtpError("Password is required.");
+      return;
+    }
+
+    setOtpError("");
+
+    const savedProfile = JSON.parse(localStorage.getItem("farmy-profile") || "{}");
+
+    localStorage.setItem(
+      "farmy-profile",
+      JSON.stringify({
+        ...savedProfile,
+        name: savedProfile.name || "Farmer",
+        phone: phoneNumber || savedProfile.phone || "",
+      }),
+    );
+
+    navigate("/dashboard");
+  };
+
   return (
     <div className="login-page">
 
@@ -168,7 +199,7 @@ function Login() {
 
 
           {!showResetPassword ? (
-            <form>
+            <form onSubmit={handleLogin}>
 
               {/* MOBILE NUMBER */}
               <div className="login-input-group">
@@ -210,6 +241,8 @@ function Login() {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
 
@@ -244,10 +277,11 @@ function Login() {
               </div>
 
 
+              {otpError ? <p className="password-error">{otpError}</p> : null}
+
               {/* LOGIN BUTTON */}
               <button type="submit" className="login-button">
                 LOGIN
-                <span>→</span>
               </button>
 
             </form>

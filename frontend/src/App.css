@@ -8,8 +8,8 @@
 
 body {
   font-family: "DM Sans", sans-serif;
-  background: #f4eee4;
-  color: #173c2b;
+  background: #f7f1e8;
+  color: #1c4936;
 }
 
 .page {
@@ -17,21 +17,19 @@ body {
   display: flex;
 }
 
-/* =========================
-   LEFT PANEL
-========================= */
+
 
 .left-panel {
   width: 45%;
   min-height: 100vh;
-  background: #174633;
+  background: #20533e;
   color: #f7f0e4;
   position: relative;
   overflow: hidden;
   padding: 50px 58px;
 }
 
-/* subtle decorative curves */
+
 .left-panel::before {
   content: "";
   position: absolute;
@@ -54,7 +52,7 @@ body {
   right: -180px;
 }
 
-/* Brand */
+
 
 .brand {
   display: flex;
@@ -82,7 +80,7 @@ body {
   color: #d9c18a;
 }
 
-/* Left content */
+
 
 .left-content {
   position: relative;
@@ -113,7 +111,7 @@ body {
   margin: 30px 0;
 }
 
-/* Image */
+
 
 .image-wrapper {
   width: min(100%, 470px);
@@ -172,7 +170,7 @@ body {
   line-height: 1.7;
 }
 
-/* Ministry */
+
 
 .ministry {
   position: absolute;
@@ -183,14 +181,12 @@ body {
   color: #9eaa93;
 }
 
-/* =========================
-   RIGHT PANEL
-========================= */
+
 
 .right-panel {
   width: 55%;
   min-height: 100vh;
-  background: #f6f0e7;
+  background: #f8f2e9;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -240,9 +236,7 @@ body {
   margin-bottom: 30px;
 }
 
-/* =========================
-   FORM
-========================= */
+
 
 .input-group {
   margin-bottom: 18px;
@@ -304,7 +298,7 @@ body {
   font-size: 17px;
 }
 
-/* Register */
+
 
 .register-button {
   width: 100%;
@@ -336,7 +330,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* Login */
+
 
 .login-text {
   margin-top: 22px;
@@ -519,7 +513,7 @@ body {
   line-height: 1;
 }
 
-/* Decoration */
+
 
 .decorative-leaves {
   display: flex;
@@ -543,9 +537,7 @@ body {
   color: #c89b55;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+
 
 @media (max-width: 900px) {
   .page {

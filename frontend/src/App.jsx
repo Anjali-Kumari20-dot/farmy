@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import "./App.css";
 
 function App() {
+  const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -42,6 +43,10 @@ function App() {
 
     setPasswordError("");
     setPhoneError("");
+    localStorage.setItem(
+      "farmy-profile",
+      JSON.stringify({ name: fullName.trim(), phone: phoneNumber }),
+    );
     setOtpSent(true);
     setOtp("");
     setOtpVerified(false);
@@ -162,6 +167,8 @@ function App() {
                     <input
                       type="text"
                       placeholder="Enter your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
                       required
                     />
                   </div>
