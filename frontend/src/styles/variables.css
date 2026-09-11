@@ -1,0 +1,35 @@
+:root {
+  /* Colors */
+  --color-primary-dark: #174633;
+  --color-primary-darker: #133a2a;
+  --color-primary-text: #173c2b;
+  --color-gold: #d7bb72;
+  --color-gold-light: #e5c982;
+  --color-gold-muted: #d4b86f;
+  --color-gold-border: rgba(221, 194, 127, 0.45);
+  --color-gold-glow: rgba(215, 187, 114, 0.18);
+  --color-bg-cream: #f4eee4;
+  --color-bg-cream-alt: #f6f0e7;
+  --color-panel-light: #f7f1e7;
+  --color-white-cream: #f8f1e6;
+  --color-card-bg: rgba(255, 255, 255, 0.05);
+  --color-card-border: rgba(215, 187, 114, 0.22);
+  --color-error: #b73229;
+  --color-error-bg: rgba(183, 50, 41, 0.08);
+  --color-success: #15803d;
+  --color-success-bg: rgba(21, 128, 61, 0.1);
+
+  /* Typography */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.22);
+  --shadow-gold: 0 12px 25px rgba(193, 149, 58, 0.25);
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
