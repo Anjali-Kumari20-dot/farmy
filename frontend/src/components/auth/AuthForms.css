@@ -144,6 +144,11 @@
   text-align: center;
 }
 
+.auth-admin-link {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
 .auth-switch-text a {
   color: #a0742a;
   font-weight: 700;

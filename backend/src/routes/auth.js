@@ -6,6 +6,7 @@ const Otp = require("../models/Otp");
 const verifyToken = require("../middleware/auth");
 const { authLimiter } = require("../middleware/rateLimiter");
 const asyncHandler = require("../utils/asyncHandler");
+const { isValidDateOnly } = require("../utils/date");
 const smsService = require("../services/smsService");
 
 const router = express.Router();
@@ -208,7 +209,7 @@ router.post(
       });
     }
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth) || Number.isNaN(Date.parse(`${dateOfBirth}T00:00:00Z`))) {
+    if (!isValidDateOnly(dateOfBirth)) {
       return res.status(400).json({ success: false, error: "Date of birth must be a valid date in YYYY-MM-DD format." });
     }
 
@@ -372,7 +373,7 @@ router.patch(
   verifyToken,
   asyncHandler(async (req, res) => {
     const { dateOfBirth, aadhaarNumber } = req.body;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth) || Number.isNaN(Date.parse(`${dateOfBirth}T00:00:00Z`))) {
+    if (!isValidDateOnly(dateOfBirth)) {
       return res.status(400).json({ success: false, error: "Date of birth must be a valid date in YYYY-MM-DD format." });
     }
 

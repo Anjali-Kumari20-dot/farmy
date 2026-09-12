@@ -30,7 +30,8 @@ const farmerSchema = new mongoose.Schema(
     // Format/uniqueness checks are not UIDAI authentication.
     identityVerificationStatus: {
       type: String,
-      enum: ["self_declared", "verified"],
+      // Only a future UIDAI-authorized integration may set this to "verified".
+      enum: ["self_declared", "officially_reviewed", "verified"],
       default: "self_declared",
     },
     password: {

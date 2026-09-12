@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const TICKET_STATUSES = [
   "submitted",
   "under_review",
+  "accepted",
   "slot_booked",
   "scheduled",
   "completed",

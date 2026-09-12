@@ -144,7 +144,12 @@ function DashboardPage() {
   };
 
   const activeBookingsCount = myBookings.filter((b) => b.status === "booked").length;
-  const bookableTickets = tickets.filter((ticket) => ["submitted", "under_review"].includes(ticket.status));
+  const bookableTickets = tickets.filter((ticket) => ticket.status === "accepted");
+  const identityStatusLabel = {
+    self_declared: "Identity recorded",
+    officially_reviewed: "Identity reviewed",
+    verified: "Identity verified",
+  }[farmer?.identityVerificationStatus] || "Identity recorded";
 
   return (
     <div className="dashboard-container">
@@ -202,7 +207,7 @@ function DashboardPage() {
             </span>
             <div className="stat-info">
               <h3>Farmer Status</h3>
-              <p className="stat-status">KYC Verified</p>
+              <p className="stat-status">{identityStatusLabel}</p>
             </div>
           </div>
         </section>
@@ -257,7 +262,7 @@ function DashboardPage() {
                   required
                   className="dash-control"
                 >
-                  <option value="">Select a submitted procurement ticket</option>
+                  <option value="">Select an accepted procurement ticket</option>
                   {bookableTickets.map((ticket) => (
                     <option key={ticket.ticketId} value={ticket.ticketId}>
                       {ticket.ticketId} — {ticket.crop} ({ticket.expectedWeightQuintals} Qtl)
@@ -266,7 +271,7 @@ function DashboardPage() {
                 </select>
                 {bookableTickets.length === 0 && (
                   <div className="ticket-required-note">
-                    <p>You need a produce-intake ticket before reserving a slot.</p>
+                    <p>You need an accepted produce-intake ticket before reserving a slot.</p>
                     <button type="button" onClick={() => navigate("/form", { state: { returnTo: "/slots" } })}>
                       CREATE PRODUCE INTAKE
                     </button>

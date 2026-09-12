@@ -1,0 +1,270 @@
+.admin-auth-page,
+.admin-console {
+  min-height: 100vh;
+  background: #eef3ef;
+  color: #133d31;
+}
+
+.admin-auth-page {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.admin-auth-card {
+  width: min(100%, 540px);
+  padding: 38px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 45px #143e3020;
+}
+
+.admin-eyebrow {
+  color: #9b7537;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+.admin-auth-card h1,
+.admin-console h1,
+.admin-ticket-detail h2 {
+  font-family: var(--font-serif);
+  margin: 8px 0 12px;
+}
+
+.admin-copy {
+  color: #61726b;
+  line-height: 1.5;
+}
+
+.admin-form,
+.admin-decision-form {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-form {
+  margin-top: 25px;
+}
+
+.admin-form label,
+.admin-decision-form label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-decision-form input,
+.admin-decision-form select,
+.admin-decision-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccd8d0;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
+.admin-form button,
+.admin-decision-form button {
+  padding: 13px;
+  border-radius: 8px;
+  background: #07543e;
+  color: #fff;
+  font-weight: 800;
+}
+
+.admin-form button:disabled,
+.admin-decision-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.admin-auth-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  color: #07543e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-auth-links button {
+  color: #07543e;
+  font-weight: 700;
+}
+
+.admin-error,
+.admin-success {
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.admin-error {
+  background: #fce8e4;
+  color: #992d23;
+}
+
+.admin-success {
+  background: #e7f4eb;
+  color: #1f6a3b;
+}
+
+.admin-console {
+  padding: 28px 5vw 48px;
+}
+
+.admin-console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24px;
+}
+
+.admin-console-header button {
+  padding: 10px 15px;
+  border: 1px solid #538072;
+  border-radius: 8px;
+  color: #07543e;
+  font-weight: 700;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.8fr) minmax(0, 1.6fr);
+  gap: 22px;
+}
+
+.admin-ticket-list,
+.admin-ticket-detail,
+.admin-settings-panel {
+  padding: 22px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.admin-ticket-list button {
+  display: grid;
+  width: 100%;
+  gap: 5px;
+  padding: 14px 10px;
+  border-bottom: 1px solid #e2e9e4;
+  border-radius: 7px;
+  text-align: left;
+}
+
+.admin-ticket-list button.selected {
+  background: #edf6f0;
+}
+
+.admin-ticket-list span {
+  color: #61726b;
+  font-size: 13px;
+}
+
+.admin-ticket-list em {
+  color: #07543e;
+  font-size: 12px;
+  font-style: normal;
+  text-transform: capitalize;
+}
+
+.admin-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.admin-status-pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #edf6f0;
+  color: #07543e;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.admin-detail-grid p {
+  padding: 12px;
+  border-radius: 8px;
+  background: #f5f8f5;
+  overflow-wrap: anywhere;
+}
+
+.admin-detail-grid span {
+  display: block;
+  margin-bottom: 5px;
+  color: #61726b;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-decision-form h3 {
+  margin: 8px 0 0;
+  font-size: 17px;
+}
+
+.admin-decision-form p {
+  color: #61726b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-decision-form textarea {
+  min-height: 95px;
+  resize: vertical;
+}
+
+.admin-secondary-form,
+.admin-settings-panel {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e9e4;
+}
+
+.admin-settings-panel {
+  max-width: 760px;
+}
+
+.admin-settings-panel > p {
+  margin: 10px 0 18px;
+  color: #61726b;
+  line-height: 1.5;
+}
+
+.admin-empty-detail {
+  color: #61726b;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .admin-auth-card,
+  .admin-console {
+    padding: 24px;
+  }
+
+  .admin-grid,
+  .admin-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-console-header {
+    align-items: flex-start;
+    gap: 14px;
+  }
+}

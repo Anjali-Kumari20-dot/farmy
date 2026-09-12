@@ -1,15 +1,47 @@
 const express = require("express");
-const { Slot, VALID_TIME_SLOTS } = require("../models/Slot");
+const { Slot } = require("../models/Slot");
+const { getProcurementSettings } = require("../models/ProcurementSettings");
 const Farmer = require("../models/Farmer");
 const { ProcurementTicket } = require("../models/ProcurementTicket");
 const verifyToken = require("../middleware/auth");
 const asyncHandler = require("../utils/asyncHandler");
+const { isValidDateOnly } = require("../utils/date");
 const smsService = require("../services/smsService");
 
 const router = express.Router();
 
-// Procurement center capacity per time slot (concurrent farmers processed)
-const MAX_FARMERS_PER_SLOT = 5;
+const reserveSlotWithinCapacity = async ({ farmerId, ticketId, date, timeSlot, cropType, quantityQuintals, capacity }) => {
+  for (let attempt = 0; attempt < capacity; attempt += 1) {
+    const activeBookings = await Slot.find({ date, timeSlot, status: "booked" })
+      .select("bookingSequence")
+      .lean();
+
+    if (activeBookings.length >= capacity) return null;
+
+    const usedSequences = new Set(activeBookings.map((booking) => booking.bookingSequence).filter(Boolean));
+    const bookingSequence = Array.from({ length: capacity }, (_, index) => index + 1)
+      .find((sequence) => !usedSequences.has(sequence));
+    if (!bookingSequence) return null;
+
+    try {
+      return await Slot.create({
+        farmerId,
+        ticketId,
+        date,
+        timeSlot,
+        bookingSequence,
+        cropType,
+        quantityQuintals,
+        status: "booked",
+      });
+    } catch (error) {
+      // Another request claimed this sequence or this ticket's active booking first.
+      if (error.code !== 11000) throw error;
+    }
+  }
+
+  return null;
+};
 
 // =========================================================================
 // 1. GET AVAILABLE SLOTS FOR A DATE
@@ -18,8 +50,9 @@ router.get(
   "/available",
   asyncHandler(async (req, res) => {
     const { date } = req.query;
+    const settings = await getProcurementSettings();
 
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    if (!isValidDateOnly(date)) {
       return res.status(400).json({
         success: false,
         error: "Valid date query parameter in YYYY-MM-DD format is required.",
@@ -37,12 +70,12 @@ router.get(
       bookingMap[item._id] = item.count;
     });
 
-    const availability = VALID_TIME_SLOTS.map((slot) => {
+    const availability = settings.timeSlots.map((slot) => {
       const bookedCount = bookingMap[slot] || 0;
-      const remainingCapacity = Math.max(0, MAX_FARMERS_PER_SLOT - bookedCount);
+      const remainingCapacity = Math.max(0, settings.capacityPerSlot - bookedCount);
       return {
         timeSlot: slot,
-        totalCapacity: MAX_FARMERS_PER_SLOT,
+        totalCapacity: settings.capacityPerSlot,
         bookedCount,
         available: remainingCapacity > 0,
         remainingCapacity,
@@ -66,6 +99,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const { date, timeSlot, ticketId } = req.body;
     const farmerId = req.user.id;
+    const settings = await getProcurementSettings();
 
     if (!date || !timeSlot || !ticketId) {
       return res.status(400).json({
@@ -73,12 +107,15 @@ router.post(
         error: "Ticket ID, date (YYYY-MM-DD), and time slot are required.",
       });
     }
+    if (!isValidDateOnly(date)) {
+      return res.status(400).json({ success: false, error: "Date must be a valid YYYY-MM-DD value." });
+    }
 
     const ticket = await ProcurementTicket.findOne({ ticketId, farmerId });
     if (!ticket) {
       return res.status(404).json({ success: false, error: "Procurement ticket not found or not owned by you." });
     }
-    if (!["submitted", "under_review"].includes(ticket.status)) {
+    if (ticket.status !== "accepted") {
       return res.status(409).json({
         success: false,
         error: `Ticket ${ticketId} cannot book a slot while its status is ${ticket.status}.`,
@@ -89,11 +126,11 @@ router.post(
     const quantityQuintals = ticket.expectedWeightQuintals;
 
     // Check if slot string is valid
-    if (!VALID_TIME_SLOTS.includes(timeSlot)) {
+    if (!settings.timeSlots.includes(timeSlot)) {
       return res.status(400).json({
         success: false,
         error: "Invalid procurement time slot selected.",
-        validSlots: VALID_TIME_SLOTS,
+        validSlots: settings.timeSlots,
       });
     }
 
@@ -121,38 +158,38 @@ router.post(
       });
     }
 
-    // Concurrency / capacity control: verify procurement centre capacity
-    const currentBookedCount = await Slot.countDocuments({
-      date,
-      timeSlot,
-      status: "booked",
-    });
-
-    if (currentBookedCount >= MAX_FARMERS_PER_SLOT) {
-      return res.status(409).json({
-        success: false,
-        error: `The ${timeSlot} slot on ${date} is fully booked (${MAX_FARMERS_PER_SLOT}/${MAX_FARMERS_PER_SLOT}). Please pick another slot.`,
-      });
-    }
-
-    // Create the booking safely attached to authenticated farmerId
-    const slot = await Slot.create({
+    const slot = await reserveSlotWithinCapacity({
       farmerId,
       ticketId,
       date,
       timeSlot,
       cropType,
       quantityQuintals,
-      status: "booked",
+      capacity: settings.capacityPerSlot,
     });
 
-    ticket.slotId = slot._id;
-    ticket.status = "slot_booked";
-    ticket.statusHistory.push({
-      status: "slot_booked",
-      note: `Slot booked for ${date}, ${timeSlot}.`,
-    });
-    await ticket.save();
+    if (!slot) {
+      return res.status(409).json({
+        success: false,
+        error: `The ${timeSlot} slot on ${date} is fully booked or this ticket already has a booking. Please refresh and choose another slot.`,
+      });
+    }
+
+    // Only one concurrent request can transition an accepted ticket to slot_booked.
+    const reservedTicket = await ProcurementTicket.findOneAndUpdate(
+      { _id: ticket._id, status: "accepted" },
+      {
+        $set: { slotId: slot._id, status: "slot_booked" },
+        $push: { statusHistory: { status: "slot_booked", note: `Slot booked for ${date}, ${timeSlot}.` } },
+      },
+      { new: true }
+    );
+
+    if (!reservedTicket) {
+      slot.status = "cancelled";
+      await slot.save();
+      return res.status(409).json({ success: false, error: "This ticket was updated while the slot was being booked. Please refresh and try again." });
+    }
 
     // Fetch farmer profile for dispatching SMS confirmation
     const farmer = await Farmer.findById(farmerId);
@@ -234,8 +271,9 @@ router.patch(
     const ticket = await ProcurementTicket.findOne({ ticketId: slot.ticketId, farmerId: req.user.id });
     if (ticket && ticket.status === "slot_booked") {
       ticket.slotId = null;
-      ticket.status = "submitted";
-      ticket.statusHistory.push({ status: "submitted", note: "Booked slot was cancelled; awaiting a new slot." });
+      // The earlier approval is still valid, so the farmer can immediately re-book.
+      ticket.status = "accepted";
+      ticket.statusHistory.push({ status: "accepted", note: "Booked slot was cancelled; ticket remains accepted for a new slot." });
       await ticket.save();
     }
 

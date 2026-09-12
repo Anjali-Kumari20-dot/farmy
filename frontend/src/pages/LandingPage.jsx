@@ -9,7 +9,6 @@ import {
   ActivityIcon,
   CreditCardIcon,
   FileTextIcon,
-  BellIcon,
   GlobeIcon,
   ChevronDownIcon,
   UserIcon,
@@ -19,6 +18,7 @@ import {
 import CropDemandPage from "./CropDemandPage";
 import SchedulePage from "./SchedulePage";
 import FormPage from "./FormPage";
+import NotificationMenu from "../components/notifications/NotificationMenu";
 import "./LandingPage.css";
 
 // Map feature number to its icon component
@@ -165,10 +165,7 @@ function LandingPage() {
             )}
           </div>
 
-          <button className="notification-button" aria-label="Notifications">
-            <BellIcon size={16} />
-            <span>0</span>
-          </button>
+          <NotificationMenu />
 
           <button type="button" onClick={logout} className="logout-button">
             <LogOutIcon size={14} />

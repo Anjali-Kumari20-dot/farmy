@@ -20,6 +20,9 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret_farmy");
+    if (decoded.role === "admin") {
+      return res.status(403).json({ success: false, error: "Farmer authentication is required for this endpoint." });
+    }
     req.user = { id: decoded.id };
     next();
   } catch (err) {

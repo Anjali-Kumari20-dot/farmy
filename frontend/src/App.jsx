@@ -11,6 +11,8 @@ import CropDemandPage from "./pages/CropDemandPage";
 import SchedulePage from "./pages/SchedulePage";
 import FormPage from "./pages/FormPage";
 import TicketStatusPage from "./pages/TicketStatusPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 
 // Redirects authenticated users away from auth pages
 function AuthRoute({ children }) {
@@ -28,6 +30,10 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function AdminRoute({ children }) {
+  return localStorage.getItem("farmy_admin_token") ? children : <Navigate to="/admin/login" replace />;
+}
+
 function App() {
   return (
     <Routes>
@@ -37,12 +43,14 @@ function App() {
       {/* Auth pages */}
       <Route path="/register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
       <Route path="/login"    element={<AuthRoute><LoginPage /></AuthRoute>} />
+      <Route path="/admin/login" element={<AdminLoginPage />} />
 
       {/* Protected pages */}
       <Route path="/dashboard" element={<ProtectedRoute><LandingPage /></ProtectedRoute>} />
       <Route path="/slots"     element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/form"      element={<ProtectedRoute><FormPage /></ProtectedRoute>} />
       <Route path="/tickets"   element={<ProtectedRoute><TicketStatusPage /></ProtectedRoute>} />
+      <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
 
       {/* Public info pages (no auth required) */}
       <Route path="/demand"   element={<CropDemandPage />} />

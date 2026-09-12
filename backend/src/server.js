@@ -10,6 +10,9 @@ const authRoutes = require("./routes/auth");
 const slotRoutes = require("./routes/slot");
 const procurementRoutes = require("./routes/procurements");
 const ticketRoutes = require("./routes/tickets");
+const adminAuthRoutes = require("./routes/adminAuth");
+const adminRoutes = require("./routes/admin");
+const notificationRoutes = require("./routes/notifications");
 const smsService = require("./services/smsService");
 const { apiLimiter } = require("./middleware/rateLimiter");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
@@ -21,7 +24,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_farmy";
 // Security audit warning if default weak JWT secret is detected
 if (JWT_SECRET === "yourSecretKey" || JWT_SECRET === "fallback_secret_farmy") {
   console.warn(
-    "[SECURITY WARNING]: JWT_SECRET is using a weak or default key. Please configure a strong random secret in your production .env file."
+    "[SECURITY WARNING]: JWT_SECRET is using a weak or default key. Please configure a strong random secret in your production .env file.",
   );
 }
 
@@ -45,7 +48,7 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 // 3. Request parsers
@@ -58,11 +61,11 @@ app.use("/api", apiLimiter);
 // Do not let Mongoose buffer requests while the database is unavailable.
 // A clear 503 is preferable to a misleading multi-second query timeout.
 app.use("/api", (req, res, next) => {
-	console.log(mongoose.connection.readyState);
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({
       success: false,
-      error: "Database is unavailable. Start MongoDB or configure MONGO_URI, then try again.",
+      error:
+        "Database is unavailable. Start MongoDB or configure MONGO_URI, then try again.",
     });
   }
   next();
@@ -73,6 +76,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/slots", slotRoutes);
 app.use("/api/procurements", procurementRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

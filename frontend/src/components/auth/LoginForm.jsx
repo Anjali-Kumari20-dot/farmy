@@ -122,6 +122,10 @@ function LoginForm({ onForgotPassword }) {
         <Link to="/"> Create an account.</Link>
       </p>
 
+      <p className="auth-switch-text auth-admin-link">
+        <Link to="/admin/login">Administrator login</Link>
+      </p>
+
       <DecorativeLeaves />
     </div>
   );

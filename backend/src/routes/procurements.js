@@ -25,7 +25,7 @@ router.post(
     const existingActiveTicket = await ProcurementTicket.findOne({
       farmerId: req.user.id,
       crop,
-      status: { $in: ["submitted", "under_review", "slot_booked", "scheduled"] },
+      status: { $in: ["submitted", "under_review", "accepted", "slot_booked", "scheduled"] },
     });
 
     if (existingActiveTicket) {
