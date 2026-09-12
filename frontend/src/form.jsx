@@ -1,386 +1,244 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "./form.css";
 
-function Form({ onClose }) {
-  const [formData, setFormData] = useState(() => {
-    try {
-      const profile = JSON.parse(localStorage.getItem("farmy-profile") || "{}");
-
-      return {
-        farmerName: profile.name || "Farmer",
-        mobile: profile.phone || "",
-        village: profile.village || "VILLAGE ABC",
-        surveyNumber: "",
-        crop: "",
-        cropWeight: "2.5",
-        bankAccount: "",
-        ifsc: "",
-      };
-    } catch {
-      return {
-        farmerName: "Farmer",
-        mobile: "",
-        village: "VILLAGE ABC",
-        surveyNumber: "",
-        crop: "",
-        cropWeight: "2.5",
-        bankAccount: "",
-        ifsc: "",
-      };
-    }
+function App() {
+  const [formData, setFormData] = useState({
+    farmerName: "",
+    mobile: "",
+    village: "",
+    surveyNumber: "",
+    crop: "",
+    weight: "",
+    accountNumber: "",
+    ifsc: "",
+    confirmation: false,
   });
-  const [bankErrors, setBankErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
-    if (name === "bankAccount") {
-      const digits = value.replace(/\D/g, "").slice(0, 16);
-      const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
-
-      setFormData((prev) => ({ ...prev, bankAccount: formatted }));
-      setBankErrors((prev) => ({ ...prev, bankAccount: "" }));
-      return;
-    }
-
-    if (name === "ifsc") {
-      const normalized = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11);
-
-      setFormData((prev) => ({ ...prev, ifsc: normalized }));
-      setBankErrors((prev) => ({ ...prev, ifsc: "" }));
-      return;
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const accountDigits = formData.bankAccount.replace(/\s/g, "");
-    const errors = {};
-
-    if (!/^\d{16}$/.test(accountDigits)) {
-      errors.bankAccount = "Account number must contain exactly 16 digits.";
-    }
-
-    if (!/^[A-Z]{4}0\d{6}$/.test(formData.ifsc)) {
-      errors.ifsc = "IFSC must be 4 capital letters, 0, and 6 digits.";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setBankErrors(errors);
+    if (!formData.confirmation) {
+      alert("Please confirm that the information provided is correct.");
       return;
     }
 
-    console.log("Procurement form submitted:", formData);
+    console.log("Submitted Data:", formData);
 
-    alert("Form submitted successfully!");
-
-    onClose();
+    alert("Crop details submitted successfully!");
   };
 
   return (
-    <div className="form-overlay" onClick={onClose}>
-      <div
-        className="form-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="form-header">
-          <div>
-            <span className="form-badge">
-              PROCUREMENT CENTRE & SLOT BOOKING
-            </span>
+    <div className="page">
 
-            <h1>BOOK PROCUREMENT SLOT</h1>
+      <form className="crop-form" onSubmit={handleSubmit}>
 
-            <p>
-              Enter your crop and procurement details to reserve a
-              real-time weighbridge slot at your designated centre.
-            </p>
-          </div>
-
-          <button
-            className="form-close"
-            onClick={onClose}
-            aria-label="Close form"
-          >
-            ×
-          </button>
+        {/* Form Heading */}
+        <div className="form-label">
+          FORM FILLING & PRODUCE INTAKE
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
+        <h1>FORM FILLING</h1>
 
-          {/* Farmer Name */}
-          <div className="form-field">
-            <label>FARMER FULL NAME</label>
 
-            <input
-              type="text"
-              name="farmerName"
-              value={formData.farmerName}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        {/* Farmer Name */}
+        <div className="form-group">
+          <label>
+            Farmer Full Name (Default)
+          </label>
 
-          {/* Mobile */}
-          <div className="form-field">
-            <label>REGISTERED MOBILE NUMBER</label>
+          <input
+            type="text"
+            name="farmerName"
+            value={formData.farmerName}
+            readOnly
+          />
+        </div>
 
-            <input
-              type="tel"
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleChange}
-              required
-            />
-          </div>
 
-          {/* Village */}
-          <div className="form-field">
-            <label>DESIGNATED PROCUREMENT VILLAGE</label>
+        {/* Mobile Number */}
+        <div className="form-group">
+          <label>
+            Registered Mobile Number (Default)
+          </label>
 
-            <input
-              type="text"
-              name="village"
-              value={formData.village}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <input
+            type="tel"
+            name="mobile"
+            value={formData.mobile}
+            readOnly
+          />
+        </div>
 
-          {/* Survey Number */}
-          <div className="form-field">
-            <label>LAND SURVEY NUMBER *</label>
 
-            <input
-              type="text"
-              name="surveyNumber"
-              value={formData.surveyNumber}
-              onChange={handleChange}
-              placeholder="e.g. Survey #402/1A or Plot 12B"
-              required
-            />
-          </div>
+        {/* Village */}
+        <div className="form-group">
+          <label>
+            Designated Procurement Village (Default)
+          </label>
 
-          {/* Crop */}
-          <div className="form-field">
-            <label>AGRICULTURAL PRODUCE / CROP *</label>
+          <input
+            type="text"
+            name="village"
+            value={formData.village}
+            readOnly
+          />
+        </div>
 
-            <select
-              name="crop"
-              value={formData.crop}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Agricultural Produce</option>
 
-              <option value="paddy">
-                🌾 Paddy Common - Govt. MSP ₹2,441/Qtl
-              </option>
+        {/* Survey Number */}
+        <div className="form-group">
+          <label>
+            Land Survey Number <span>*</span>
+          </label>
 
-              <option value="paddy-grade-a">
-                🌾 Paddy(F)/Grade A - Govt. MSP ₹2,441/Qtl
-              </option>
+          <input
+            type="text"
+            name="surveyNumber"
+            value={formData.surveyNumber}
+            onChange={handleChange}
+            placeholder="e.g. Survey #402/1A or Plot 12B"
+            required
+          />
+        </div>
 
-              <option value="cotton-medium">
-                ☁️ Medium Staple Cotton - Govt. MSP ₹8,267/Qtl
-              </option>
 
-              <option value="cotton-long">
-                ☁️ Long Staple Cotton - Govt. MSP ₹8,267/Qtl
-              </option>
+        {/* Crop */}
+        <div className="form-group">
+          <label>
+            Agricultural Produce / Crop <span>*</span>
+          </label>
 
-              <option value="maize">
-                🌽 Maize - Govt. MSP ₹2,410/Qtl
-              </option>
-
-              <option value="groundnut">
-                🥜 Groundnut - Govt. MSP ₹7,517/Qtl
-              </option>
-
-              <option value="ragi">
-                🌾 Ragi - Govt. MSP ₹5,205/Qtl
-              </option>
-
-              <option value="wheat">
-                🌾 Wheat - Govt. MSP ₹2,585/Qtl
-              </option>
-
-              <option value="mustard">
-                🌻 Rapeseed / Mustard - Govt. MSP ₹6,200/Qtl
-              </option>
-
-              <option value="soybean">
-                🌱 Soyabean Yellow - Govt. MSP ₹2,275/Qtl
-              </option>
-
-              <option value="tur">
-                🫘 Tur (Arhar) - Govt. MSP ₹8,450/Qtl
-              </option>
-
-              <option value="moong">
-                🫘 Moong - Govt. MSP ₹8,780/Qtl
-              </option>
-
-              <option value="urad">
-                🫘 Urad - Govt. MSP ₹8,200/Qtl
-              </option>
-
-              <option value="gram">
-                🫘 Gram - Govt. MSP ₹5,875/Qtl
-              </option>
-
-              <option value="jute">
-                🌿 Jute - Govt. MSP ₹5,925/Qtl
-              </option>
-
-              <option value="sugarcane">
-                🌾 Sugarcane - Govt. MSP ₹365/Qtl
-              </option>
-            </select>
-          </div>
-
-          {/* Weight */}
-          <div className="form-field">
-            <label>EXPECTED CROP WEIGHT *</label>
-
-            <div className="weight-wrapper">
-              <input
-                type="number"
-                name="cropWeight"
-                min="0.1"
-                step="0.1"
-                value={formData.cropWeight}
-                onChange={handleChange}
-                required
-              />
-
-              <span>QUINTALS</span>
-            </div>
-          </div>
-
-          {/* Procurement Centre */}
-          <div className="form-field">
-            <label>PROCUREMENT CENTRE *</label>
-
-            <select required name="procurementCentre">
-              <option value="">
-                Select Procurement Centre
-              </option>
-
-              <option value="centre-1">
-                Procurement Centre - Village ABC
-              </option>
-
-              <option value="centre-2">
-                Primary Agricultural Cooperative Centre
-              </option>
-
-              <option value="centre-3">
-                Government Procurement Centre
-              </option>
-            </select>
-          </div>
-
-          {/* Date */}
-          <div className="form-field">
-            <label>PREFERRED INTAKE DATE *</label>
-
-            <input
-              type="date"
-              required
-              name="preferredDate"
-            />
-          </div>
-
-          {/* Slot */}
-          <div className="form-field">
-            <label>PREFERRED WEIGHBRIDGE SLOT *</label>
-
-            <select required name="preferredSlot">
-              <option value="">
-                Select Available Slot
-              </option>
-
-              <option value="09:00">
-                09:00 AM – 10:00 AM
-              </option>
-
-              <option value="10:00">
-                10:00 AM – 11:00 AM
-              </option>
-
-              <option value="11:00">
-                11:00 AM – 12:00 PM
-              </option>
-
-              <option value="14:00">
-                02:00 PM – 03:00 PM
-              </option>
-
-              <option value="15:00">
-                03:00 PM – 04:00 PM
-              </option>
-            </select>
-          </div>
-
-          {/* Bank */}
-          <div className="form-field">
-            <label>BANK ACCOUNT NUMBER *</label>
-
-            <input
-              type="text"
-              name="bankAccount"
-              value={formData.bankAccount}
-              onChange={handleChange}
-              placeholder="1234 5678 9012 3456"
-              inputMode="numeric"
-              maxLength={19}
-              required
-            />
-            {bankErrors.bankAccount ? (
-              <p className="field-error">{bankErrors.bankAccount}</p>
-            ) : null}
-          </div>
-
-          {/* IFSC */}
-          <div className="form-field">
-            <label>BANK IFSC CODE *</label>
-
-            <input
-              type="text"
-              name="ifsc"
-              value={formData.ifsc}
-              onChange={handleChange}
-              placeholder="ABCD0123456"
-              maxLength={11}
-              required
-            />
-            {bankErrors.ifsc ? (
-              <p className="field-error">{bankErrors.ifsc}</p>
-            ) : null}
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            className="submit-form-button"
+          <select
+            name="crop"
+            value={formData.crop}
+            onChange={handleChange}
+            required
           >
-            SUBMIT FORM
-            <span>→</span>
-          </button>
+            <option value="">
+              Select Agricultural Produce ▼
+            </option>
 
-        </form>
-      </div>
+            <option value="paddy">Paddy Common - Govt.MSP ₹2,441/Qtl</option>
+            <option value="paddy">Paddy (F)/Grade A - Govt.MSP ₹2,441/Qtl</option>
+            <option value="cotton">Medium Staple Cotton - Govt.MSP ₹8,267/Qtl</option>
+            <option value="">Long Staple Cotton - Govt.MSP ₹8,267/Qtl</option>
+            <option value="wheat">Wheat - Govt.MSP ₹2,585/Qtl</option>
+            <option value="maize">Maize - Govt.MSP ₹2,410/Qtl</option>
+            <option value="groundnut">Groundnut - Govt.MSP ₹7,517/Qtl</option>
+            <option value="mustard">Rapeseed/Mustard - Govt.MSP ₹6,200/Qtl</option>
+            <option value="soybean">Soybean - Govt.MSP ₹2,275/Qtl</option>
+            <option value="Ragi">Ragi - Govt.MSP ₹5,205/Qtl</option>
+            <option value="dal">Tur(Arhar) - Govt.MSP ₹8,450/Qtl</option>
+            <option value="dal">Moong - Govt.MSP ₹8,780/Qtl</option>
+            <option value="dal">Urad - Govt.MSP ₹8,200/Qtl</option>
+            <option value="dal">Gram - Govt.MSP ₹5,875/Qtl</option>
+            <option value="jute">Jute - Govt.MSP ₹5,925/Qtl</option>
+            <option value="Sugarcane">Sugarcane - Govt.MSP ₹365/Qtl</option>
+          </select>
+        </div>
+
+
+        {/* Crop Weight */}
+        <div className="form-group">
+          <label>
+            Expected Crop Weight <span>*</span>
+          </label>
+
+          <div className="weight-container">
+
+            <input
+              type="number"
+              name="weight"
+              value={formData.weight}
+              onChange={handleChange}
+              placeholder="Enter expected weight in Quintals"
+              min="1"
+              required
+            />
+
+            <span>Quintals</span>
+
+          </div>
+        </div>
+
+
+        {/* Bank Account */}
+        <div className="form-group">
+          <label>
+            Bank Account Number <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            name="accountNumber"
+            value={formData.accountNumber}
+            onChange={handleChange}
+            placeholder="Enter bank account number"
+            inputMode="numeric"
+            required
+          />
+        </div>
+
+
+        {/* IFSC */}
+        <div className="form-group">
+          <label>
+            Bank IFSC Code <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            name="ifsc"
+            value={formData.ifsc}
+            onChange={handleChange}
+            placeholder="ENTER IFSC CODE"
+            maxLength="11"
+            required
+            style={{ textTransform: "uppercase" }}
+          />
+        </div>
+
+
+        {/* Confirmation */}
+        <div className="confirmation">
+
+          <input
+            type="checkbox"
+            name="confirmation"
+            checked={formData.confirmation}
+            onChange={handleChange}
+            id="confirmation"
+          />
+
+          <label htmlFor="confirmation">
+            I confirm that the information provided is correct.
+          </label>
+
+        </div>
+
+
+        {/* Submit */}
+        <button
+          type="submit"
+          className="submit-button"
+        >
+          SUBMIT 
+          <span>→</span>
+        </button>
+
+      </form>
+
     </div>
   );
 }
 
-export default Form;
+export default App;

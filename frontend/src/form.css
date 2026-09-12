@@ -1,256 +1,68 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "DM Sans", Arial, sans-serif;
+}
 
 
-.form-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+/* =====================================
+   PAGE
+===================================== */
 
-  background: rgba(13, 45, 33, 0.72);
+.page {
+  min-height: 100vh;
+
+  background: #004532;
+
+  padding: 40px 20px;
 
   display: flex;
   justify-content: center;
-  align-items: center;
-
-  padding: 30px;
-
-  backdrop-filter: blur(5px);
-}
-
-
-
-
-.form-modal {
-  width: min(100%, 1100px);
-  max-height: 92vh;
-
-  overflow-y: auto;
-
-  background: #f8f4ed;
-
-  border: 2px solid #d6bb78;
-  border-radius: 20px;
-
-  padding: 30px;
-
-  box-shadow:
-    0 30px 70px rgba(0, 0, 0, 0.3);
-
-  position: relative;
-}
-
-
-
-
-.form-modal::-webkit-scrollbar {
-  width: 8px;
-}
-
-.form-modal::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.form-modal::-webkit-scrollbar-thumb {
-  background: #b9aa8c;
-  border-radius: 10px;
-}
-
-
-
-
-.form-header {
-  display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-
-  margin-bottom: 30px;
 }
 
-.form-badge {
+
+/* =====================================
+   FORM
+===================================== */
+
+.crop-form {
+  width: 100%;
+  max-width: 620px;
+
+  padding: 45px;
+
+  background: #faf8f1;
+
+  border: 2px solid #d8bd8a;
+
+  border-radius: 28px;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+
+/* =====================================
+   FORM LABEL
+===================================== */
+
+.form-label {
   display: inline-block;
 
-  padding: 6px 10px;
+  padding: 7px 15px;
+
+  margin-bottom: 18px;
+
+  background: #eee3d1;
+
+  color: #c39a59;
 
   border-radius: 5px;
 
-  background: #eee5d4;
-
-  color: #b68c43;
-
-  font-size: 11px;
-  font-weight: 700;
-
-  letter-spacing: 1.7px;
-}
-
-.form-header h1 {
-  margin-top: 12px;
-
-  font-family: "Playfair Display", serif;
-
-  color: #173c2b;
-
-  font-size: 34px;
-
-  letter-spacing: -0.5px;
-}
-
-.form-header p {
-  margin-top: 8px;
-
-  max-width: 700px;
-
-  color: #718078;
-
-  font-size: 13px;
-
-  line-height: 1.6;
-}
-
-
-
-
-.form-close {
-  width: 42px;
-  height: 42px;
-
-  border: none;
-  background: transparent;
-
-  color: #718078;
-
-  font-size: 32px;
-
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition: 0.2s ease;
-}
-
-.form-close:hover {
-  color: #173c2b;
-
-  transform: rotate(90deg);
-}
-
-
-
-
-.form-field {
-  margin-bottom: 18px;
-}
-
-.form-field label {
-  display: block;
-
-  margin-bottom: 7px;
-
-  color: #365647;
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.8px;
-}
-
-
-
-
-.form-field input,
-.form-field select {
-  width: 100%;
-  height: 52px;
-
-  border: 1px solid #ded7cc;
-
-  border-radius: 10px;
-
-  background: #fffdf9;
-
-  padding: 0 15px;
-
-  outline: none;
-
-  color: #294b3c;
-
-  font-family: "DM Sans", sans-serif;
-
   font-size: 14px;
-
-  transition: 0.2s ease;
-}
-
-.form-field input::placeholder {
-  color: #b4b7b3;
-}
-
-.field-error {
-  margin: 6px 0 0;
-  color: #a33c3c;
-  font-size: 12px;
-}
-
-.form-field input:focus,
-.form-field select:focus {
-  border-color: #b99548;
-
-  box-shadow:
-    0 0 0 3px rgba(185, 149, 72, 0.1);
-}
-
-
-
-
-.form-field input[name="farmerName"],
-.form-field input[name="mobile"],
-.form-field input[name="village"] {
-  background: #f2ede3;
-}
-
-
-
-
-.weight-wrapper {
-  display: flex;
-
-  width: 100%;
-  height: 52px;
-
-  border: 1px solid #ded7cc;
-
-  border-radius: 10px;
-
-  overflow: hidden;
-
-  background: #fffdf9;
-}
-
-.weight-wrapper input {
-  border: none;
-
-  border-radius: 0;
-
-  flex: 1;
-}
-
-.weight-wrapper input:focus {
-  box-shadow: none;
-}
-
-.weight-wrapper span {
-  min-width: 105px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  background: #e9e0d0;
-
-  color: #365647;
-
-  font-size: 11px;
 
   font-weight: 700;
 
@@ -258,89 +70,318 @@
 }
 
 
+/* =====================================
+   HEADING
+===================================== */
+
+.crop-form h1 {
+  margin: 0 0 38px;
+
+  color: #073f30;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 40px;
+
+  letter-spacing: 0.5px;
+}
 
 
-.submit-form-button {
+/* =====================================
+   FORM GROUP
+===================================== */
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+
+/* LABEL */
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #183f34;
+
+  font-size: 17px;
+
+  font-weight: 600;
+}
+
+
+/* REQUIRED STAR */
+
+.form-group label span {
+  color: #b35c40;
+}
+
+
+/* =====================================
+   INPUT + SELECT
+===================================== */
+
+.form-group input,
+.form-group select {
   width: 100%;
 
-  height: 56px;
+  height: 64px;
 
-  margin-top: 10px;
+  padding: 0 25px;
+
+  border: 2px solid #e2dbce;
+
+  border-radius: 17px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #174c3a;
+
+  font-family: inherit;
+
+  font-size: 17px;
+
+  transition: all 0.2s ease;
+}
+
+
+/* FOCUS */
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #c4a467;
+
+  box-shadow: 0 0 0 3px rgba(196, 164, 103, 0.12);
+}
+
+
+/* DEFAULT FIELDS */
+
+.form-group input[readonly] {
+  background: #f1eee6;
+
+  color: #174c3a;
+
+  font-weight: 600;
+}
+
+
+/* PLACEHOLDER */
+
+.form-group input::placeholder {
+  color: #858985;
+}
+
+
+/* =====================================
+   SELECT
+===================================== */
+
+.form-group select {
+  cursor: pointer;
+
+  appearance: auto;
+}
+
+
+/* =====================================
+   WEIGHT
+===================================== */
+
+.weight-container {
+  display: flex;
+
+  width: 100%;
+
+  height: 64px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 2px solid #e2dbce;
+
+  border-radius: 17px;
+}
+
+
+.weight-container input {
+  flex: 1;
+
+  height: 100%;
 
   border: none;
 
-  border-radius: 11px;
+  border-radius: 0;
 
-  background: #174633;
+  outline: none;
+}
 
-  color: #fff;
 
-  font-family: "DM Sans", sans-serif;
+.weight-container input:focus {
+  box-shadow: none;
+}
 
-  font-size: 12px;
 
-  font-weight: 700;
-
-  letter-spacing: 2px;
-
-  cursor: pointer;
+.weight-container span {
+  width: 105px;
 
   display: flex;
 
-  align-items: center;
   justify-content: center;
 
-  gap: 12px;
+  align-items: center;
 
-  box-shadow:
-    0 10px 22px rgba(23, 70, 51, 0.18);
+  background: #eee3d1;
 
-  transition: 0.2s ease;
-}
+  color: #274c3f;
 
-.submit-form-button span {
-  font-size: 19px;
-}
+  font-size: 15px;
 
-.submit-form-button:hover {
-  background: #0f3828;
-
-  transform: translateY(-1px);
+  font-weight: 600;
 }
 
 
+/* =====================================
+   CONFIRMATION
+===================================== */
+
+.confirmation {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin: 30px 0;
+
+  color: #53645c;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
 
 
-@media (max-width: 700px) {
+.confirmation input {
+  width: 18px;
+  height: 18px;
 
-  .form-overlay {
-    padding: 12px;
+  margin-top: 2px;
+
+  accent-color: #07543e;
+
+  cursor: pointer;
+}
+
+
+.confirmation label {
+  cursor: pointer;
+}
+
+
+/* =====================================
+   SUBMIT BUTTON
+===================================== */
+
+.submit-button {
+  width: 100%;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 17px;
+
+  border: none;
+
+  border-radius: 15px;
+
+  background: #07543e;
+
+  color: #ffffff;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+
+.submit-button:hover {
+  background: #003d2e;
+}
+
+
+.submit-button span {
+  font-size: 22px;
+}
+
+
+/* =====================================
+   MOBILE
+===================================== */
+
+@media (max-width: 650px) {
+
+  .page {
+    padding: 10px;
   }
 
-  .form-modal {
-    max-height: 95vh;
+  .crop-form {
+    padding: 30px 20px;
 
-    padding: 22px;
-
-    border-radius: 16px;
+    border-radius: 23px;
   }
 
-  .form-header h1 {
-    font-size: 27px;
-  }
-
-  .form-header p {
+  .form-label {
     font-size: 12px;
   }
 
-  .form-close {
-    width: 35px;
-    height: 35px;
+  .crop-form h1 {
+    font-size: 34px;
 
-    font-size: 28px;
+    margin-bottom: 30px;
   }
 
-  .weight-wrapper span {
-    min-width: 90px;
+  .form-group label {
+    font-size: 16px;
+  }
+
+  .form-group input,
+  .form-group select {
+    height: 58px;
+
+    padding: 0 17px;
+
+    font-size: 16px;
+
+    border-radius: 15px;
+  }
+
+  .weight-container {
+    height: 58px;
+
+    border-radius: 15px;
+  }
+
+  .weight-container span {
+    width: 95px;
+
+    font-size: 13px;
+  }
+
+  .submit-button {
+    font-size: 14px;
   }
 }
