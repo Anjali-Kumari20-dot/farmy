@@ -1,6 +1,7 @@
 const express = require("express");
 const { Slot, VALID_TIME_SLOTS } = require("../models/Slot");
 const Farmer = require("../models/Farmer");
+const { ProcurementTicket } = require("../models/ProcurementTicket");
 const verifyToken = require("../middleware/auth");
 const asyncHandler = require("../utils/asyncHandler");
 const smsService = require("../services/smsService");
@@ -63,15 +64,29 @@ router.post(
   "/book",
   verifyToken,
   asyncHandler(async (req, res) => {
-    const { date, timeSlot, cropType = "Wheat", quantityQuintals = 20 } = req.body;
+    const { date, timeSlot, ticketId } = req.body;
     const farmerId = req.user.id;
 
-    if (!date || !timeSlot) {
+    if (!date || !timeSlot || !ticketId) {
       return res.status(400).json({
         success: false,
-        error: "Date (YYYY-MM-DD) and time slot are required.",
+        error: "Ticket ID, date (YYYY-MM-DD), and time slot are required.",
       });
     }
+
+    const ticket = await ProcurementTicket.findOne({ ticketId, farmerId });
+    if (!ticket) {
+      return res.status(404).json({ success: false, error: "Procurement ticket not found or not owned by you." });
+    }
+    if (!["submitted", "under_review"].includes(ticket.status)) {
+      return res.status(409).json({
+        success: false,
+        error: `Ticket ${ticketId} cannot book a slot while its status is ${ticket.status}.`,
+      });
+    }
+
+    const cropType = ticket.crop;
+    const quantityQuintals = ticket.expectedWeightQuintals;
 
     // Check if slot string is valid
     if (!VALID_TIME_SLOTS.includes(timeSlot)) {
@@ -123,12 +138,21 @@ router.post(
     // Create the booking safely attached to authenticated farmerId
     const slot = await Slot.create({
       farmerId,
+      ticketId,
       date,
       timeSlot,
       cropType,
       quantityQuintals,
       status: "booked",
     });
+
+    ticket.slotId = slot._id;
+    ticket.status = "slot_booked";
+    ticket.statusHistory.push({
+      status: "slot_booked",
+      note: `Slot booked for ${date}, ${timeSlot}.`,
+    });
+    await ticket.save();
 
     // Fetch farmer profile for dispatching SMS confirmation
     const farmer = await Farmer.findById(farmerId);
@@ -206,6 +230,14 @@ router.patch(
 
     slot.status = "cancelled";
     await slot.save();
+
+    const ticket = await ProcurementTicket.findOne({ ticketId: slot.ticketId, farmerId: req.user.id });
+    if (ticket && ticket.status === "slot_booked") {
+      ticket.slotId = null;
+      ticket.status = "submitted";
+      ticket.statusHistory.push({ status: "submitted", note: "Booked slot was cancelled; awaiting a new slot." });
+      await ticket.save();
+    }
 
     // Fetch farmer to send cancellation notification SMS
     const farmer = await Farmer.findById(req.user.id);

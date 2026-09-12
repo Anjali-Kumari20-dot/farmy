@@ -51,6 +51,13 @@ const procurementSubmissionSchema = new mongoose.Schema(
       default: "submitted",
       index: true,
     },
+    ticketId: {
+      type: String,
+      required: true,
+      unique: true,
+      immutable: true,
+      index: true,
+    },
   },
   {
     timestamps: true,

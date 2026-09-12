@@ -10,6 +10,11 @@ const smsService = require("../services/smsService");
 
 const router = express.Router();
 
+// DEVELOPMENT ONLY: lets the local UI test registration without a Twilio Verify Service.
+// This is deliberately disabled in production, even if OTP_BYPASS_CODE is configured.
+const getDevelopmentOtpBypassCode = () =>
+  process.env.NODE_ENV !== "production" ? process.env.OTP_BYPASS_CODE : null;
+
 /**
  * Helper to generate signed JWT token for an authenticated farmer
  */
@@ -59,7 +64,7 @@ router.post(
       }
     }
 
-    // Generate secure 4-digit OTP code (between 1000 and 9999)
+    // Used by the local/mock provider. Twilio Verify generates its own code.
     const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
     // Clear any pending OTPs for this number and purpose
@@ -72,8 +77,12 @@ router.post(
       purpose,
     });
 
-    // Dispatch via pluggable SMS service (Fast2SMS / Twilio / Mock logger)
-    const smsResult = await smsService.sendOtpSms(mobileNumber, generatedOtp, purpose);
+    const bypassCode = getDevelopmentOtpBypassCode();
+
+    // DEVELOPMENT ONLY: do not call Twilio while the configured bypass code is in use.
+    const smsResult = bypassCode
+      ? { success: true, provider: "development-bypass" }
+      : await smsService.sendOtpSms(mobileNumber, generatedOtp, purpose);
 
     if (!smsResult.success) {
       await Otp.deleteMany({ mobileNumber, purpose });
@@ -88,8 +97,8 @@ router.post(
       message: `OTP sent successfully to +91 ${mobileNumber}.`,
       expiresInSeconds: 300,
       smsProvider: smsResult.provider,
-      // In non-production/mock mode, provide devOtp for easy testing
-      devOtp: process.env.NODE_ENV === "production" && smsResult.provider !== "mock" ? undefined : generatedOtp,
+      // Only the local mock provider returns a generated development code.
+      devOtp: smsResult.provider === "mock" ? generatedOtp : undefined,
     });
   })
 );
@@ -128,8 +137,27 @@ router.post(
       });
     }
 
-    // Check if code matches
-    if (otpRecord.otp !== otp.trim()) {
+    let verified = false;
+
+    const bypassCode = getDevelopmentOtpBypassCode();
+
+    // DEVELOPMENT ONLY: accept the configured local bypass code instead of calling Twilio Verify.
+    if (bypassCode) {
+      verified = otp.trim() === bypassCode;
+    } else if (smsService.usesTwilioVerify()) {
+      const verificationResult = await smsService.verifyOtp(mobileNumber, otp.trim());
+      if (!verificationResult.success) {
+        return res.status(502).json({
+          success: false,
+          error: "Unable to verify the OTP with Twilio. Please request a new code and try again.",
+        });
+      }
+      verified = verificationResult.approved;
+    } else {
+      verified = otpRecord.otp === otp.trim();
+    }
+
+    if (!verified) {
       otpRecord.attempts += 1;
       await otpRecord.save();
       const remainingAttempts = 5 - otpRecord.attempts;
@@ -157,12 +185,12 @@ router.post(
   "/register",
   authLimiter,
   asyncHandler(async (req, res) => {
-    const { fullname, mobileNumber, password, otp } = req.body;
+    const { fullname, mobileNumber, password, otp, dateOfBirth, aadhaarNumber } = req.body;
 
-    if (!fullname || !mobileNumber || !password) {
+    if (!fullname || !mobileNumber || !password || !dateOfBirth || !aadhaarNumber) {
       return res.status(400).json({
         success: false,
-        error: "Full name, mobile number, and password are required.",
+        error: "Full name, date of birth, Aadhaar number, mobile number, and password are required.",
       });
     }
 
@@ -178,6 +206,10 @@ router.post(
         success: false,
         error: "Password must be at least 6 characters long.",
       });
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth) || Number.isNaN(Date.parse(`${dateOfBirth}T00:00:00Z`))) {
+      return res.status(400).json({ success: false, error: "Date of birth must be a valid date in YYYY-MM-DD format." });
     }
 
     // Verify OTP record
@@ -207,10 +239,13 @@ router.post(
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const identity = Farmer.prepareIdentity(aadhaarNumber);
     const farmer = await Farmer.create({
       fullname: fullname.trim(),
       mobileNumber: mobileNumber.trim(),
       password: hashedPassword,
+      dateOfBirth,
+      ...identity,
     });
 
     // Clean up OTP record once registration succeeds
@@ -328,6 +363,28 @@ router.post(
       success: true,
       message: "Password reset successfully. You can now log in with your new password.",
     });
+  })
+);
+
+// Allows accounts created before identity onboarding was added to complete their profile.
+router.patch(
+  "/identity",
+  verifyToken,
+  asyncHandler(async (req, res) => {
+    const { dateOfBirth, aadhaarNumber } = req.body;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth) || Number.isNaN(Date.parse(`${dateOfBirth}T00:00:00Z`))) {
+      return res.status(400).json({ success: false, error: "Date of birth must be a valid date in YYYY-MM-DD format." });
+    }
+
+    const farmer = await Farmer.findById(req.user.id);
+    if (!farmer) return res.status(404).json({ success: false, error: "Farmer profile not found." });
+
+    const identity = Farmer.prepareIdentity(aadhaarNumber);
+    farmer.dateOfBirth = dateOfBirth;
+    Object.assign(farmer, identity);
+    await farmer.save();
+
+    res.json({ success: true, message: "Identity profile saved.", farmer });
   })
 );
 

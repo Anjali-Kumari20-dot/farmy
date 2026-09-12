@@ -4,12 +4,11 @@ export const getAvailableSlots = (date) => {
   return apiClient.get(`/slots/available?date=${encodeURIComponent(date)}`);
 };
 
-export const bookSlot = ({ date, timeSlot, cropType, quantityQuintals }) => {
+export const bookSlot = ({ date, timeSlot, ticketId }) => {
   return apiClient.post("/slots/book", {
     date,
     timeSlot,
-    cropType,
-    quantityQuintals: Number(quantityQuintals),
+    ticketId,
   });
 };
 

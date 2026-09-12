@@ -3,11 +3,12 @@ import { useAuth } from "../../context/useAuth";
 import { CROP_OPTIONS } from "../../data/crops";
 import { ArrowRightIcon } from "../common/Icons";
 import { submitProcurement } from "../../api/procurements";
+import { updateFarmerIdentity } from "../../api/auth";
 import "./ProcurementForm.css";
 
 // Produce intake form — pre-fills farmer identity from auth context
 function ProcurementForm() {
-  const { farmer } = useAuth();
+  const { farmer, updateFarmer } = useAuth();
 
   const [formData, setFormData] = useState({
     surveyNumber: "",
@@ -17,8 +18,10 @@ function ProcurementForm() {
     ifsc: "",
     confirmation: false,
   });
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [feedback, setFeedback] = useState({ type: "", message: "", ticketId: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [identityData, setIdentityData] = useState({ dateOfBirth: "", aadhaarNumber: "" });
+  const needsIdentity = !farmer?.dateOfBirth || !farmer?.aadhaarLast4;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,7 +33,7 @@ function ProcurementForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFeedback({ type: "", message: "" });
+    setFeedback({ type: "", message: "", ticketId: "" });
 
     if (!formData.confirmation) {
       setFeedback({ type: "error", message: "Please confirm that the information provided is correct." });
@@ -39,6 +42,10 @@ function ProcurementForm() {
 
     setIsSubmitting(true);
     try {
+      if (needsIdentity) {
+        const identityResponse = await updateFarmerIdentity(identityData);
+        updateFarmer(identityResponse.farmer);
+      }
       const response = await submitProcurement({
         surveyNumber: formData.surveyNumber,
         crop: formData.crop,
@@ -46,7 +53,7 @@ function ProcurementForm() {
         bankAccountNumber: formData.accountNumber,
         ifsc: formData.ifsc,
       });
-      setFeedback({ type: "success", message: response.message });
+      setFeedback({ type: "success", message: response.message, ticketId: response.ticket.ticketId });
       setFormData({ surveyNumber: "", crop: "", weight: "", accountNumber: "", ifsc: "", confirmation: false });
     } catch (error) {
       setFeedback({ type: "error", message: error.message });
@@ -62,9 +69,10 @@ function ProcurementForm() {
       <h1 className="pf-title">FORM FILLING</h1>
 
       {feedback.message && (
-        <p className={`pf-feedback ${feedback.type}`} role={feedback.type === "error" ? "alert" : "status"}>
-          {feedback.message}
-        </p>
+        <div className={`pf-feedback ${feedback.type}`} role={feedback.type === "error" ? "alert" : "status"}>
+          <p>{feedback.message}</p>
+          {feedback.ticketId && <strong>Your ticket ID: {feedback.ticketId}</strong>}
+        </div>
       )}
 
       {/* Read-only fields from auth context */}
@@ -77,6 +85,24 @@ function ProcurementForm() {
         <label>Registered Mobile Number (Default)</label>
         <input type="tel" value={farmer?.mobileNumber ? `+91 ${farmer.mobileNumber}` : ""} readOnly />
       </div>
+
+      <div className="pf-group">
+        <label>Identity Profile (Default)</label>
+        <input type="text" value={farmer?.aadhaarLast4 ? `Aadhaar ending ${farmer.aadhaarLast4} · DOB ${farmer.dateOfBirth}` : "Identity profile incomplete"} readOnly />
+      </div>
+
+      {needsIdentity && (
+        <>
+          <div className="pf-group">
+            <label>Date of Birth <span>*</span></label>
+            <input type="date" value={identityData.dateOfBirth} onChange={(e) => setIdentityData((current) => ({ ...current, dateOfBirth: e.target.value }))} required />
+          </div>
+          <div className="pf-group">
+            <label>Aadhaar Number <span>*</span></label>
+            <input type="text" inputMode="numeric" maxLength="12" placeholder="Enter 12-digit Aadhaar number" value={identityData.aadhaarNumber} onChange={(e) => setIdentityData((current) => ({ ...current, aadhaarNumber: e.target.value.replace(/\D/g, "").slice(0, 12) }))} required />
+          </div>
+        </>
+      )}
 
       <div className="pf-group">
         <label>Designated Procurement Village (Default)</label>

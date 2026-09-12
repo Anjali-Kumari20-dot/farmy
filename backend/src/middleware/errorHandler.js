@@ -9,6 +9,13 @@ const errorHandler = (err, req, res, next) => {
   // Mongoose duplicate key error (code 11000)
   if (err.code === 11000) {
     const duplicateField = Object.keys(err.keyValue || {})[0] || "field";
+    if (duplicateField === "aadhaarFingerprint") {
+      return res.status(409).json({
+        success: false,
+        error: "An account with this Aadhaar number already exists.",
+        field: "aadhaarNumber",
+      });
+    }
     const duplicateValue = err.keyValue ? err.keyValue[duplicateField] : "";
     return res.status(409).json({
       success: false,

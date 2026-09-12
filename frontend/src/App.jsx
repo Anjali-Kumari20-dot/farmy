@@ -10,6 +10,7 @@ import DashboardPage from "./pages/DashboardPage";
 import CropDemandPage from "./pages/CropDemandPage";
 import SchedulePage from "./pages/SchedulePage";
 import FormPage from "./pages/FormPage";
+import TicketStatusPage from "./pages/TicketStatusPage";
 
 // Redirects authenticated users away from auth pages
 function AuthRoute({ children }) {
@@ -41,6 +42,7 @@ function App() {
       <Route path="/dashboard" element={<ProtectedRoute><LandingPage /></ProtectedRoute>} />
       <Route path="/slots"     element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/form"      element={<ProtectedRoute><FormPage /></ProtectedRoute>} />
+      <Route path="/tickets"   element={<ProtectedRoute><TicketStatusPage /></ProtectedRoute>} />
 
       {/* Public info pages (no auth required) */}
       <Route path="/demand"   element={<CropDemandPage />} />

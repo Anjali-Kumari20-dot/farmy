@@ -21,6 +21,8 @@ function RegisterForm() {
   const { login } = useAuth();
 
   const [fullname, setFullname] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -56,6 +58,16 @@ function RegisterForm() {
 
     if (phoneNumber.length !== 10 || !/^\d{10}$/.test(phoneNumber)) {
       setPhoneError("Mobile number must contain exactly 10 numeric digits.");
+      return;
+    }
+
+    if (!dateOfBirth) {
+      setServerError("Please enter your date of birth.");
+      return;
+    }
+
+    if (!/^\d{12}$/.test(aadhaarNumber)) {
+      setServerError("Aadhaar number must contain exactly 12 digits.");
       return;
     }
 
@@ -107,6 +119,8 @@ function RegisterForm() {
       // Finalize registration
       const registerRes = await registerFarmer({
         fullname,
+        dateOfBirth,
+        aadhaarNumber,
         mobileNumber: phoneNumber,
         password,
         otp,
@@ -181,6 +195,27 @@ function RegisterForm() {
             onChange={(e) => setFullname(e.target.value)}
             required
             icon={<UserIcon size={17} />}
+          />
+
+          <InputField
+            id="register-dob"
+            label="DATE OF BIRTH*"
+            type="date"
+            value={dateOfBirth}
+            onChange={(e) => setDateOfBirth(e.target.value)}
+            required
+          />
+
+          <InputField
+            id="register-aadhaar"
+            label="AADHAAR NUMBER*"
+            type="text"
+            inputMode="numeric"
+            maxLength={12}
+            placeholder="Enter 12-digit Aadhaar number"
+            value={aadhaarNumber}
+            onChange={(e) => setAadhaarNumber(e.target.value.replace(/\D/g, "").slice(0, 12))}
+            required
           />
 
           <InputField

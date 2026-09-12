@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CloseIcon, ArrowRightIcon } from "../components/common/Icons";
 import DemandHero from "../components/demand/DemandHero";
 import DemandControls from "../components/demand/DemandControls";
@@ -8,6 +9,7 @@ import "./CropDemandPage.css";
 
 // Full-screen crop demand page showing government procurement targets
 function CropDemandPage({ onClose, onOpenSchedule, onOpenForm, onBookSlot }) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("rank");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -46,7 +48,7 @@ function CropDemandPage({ onClose, onOpenSchedule, onOpenForm, onBookSlot }) {
           <h1>CROP IN DEMAND</h1>
         </div>
 
-        <button className="crop-close-btn" onClick={onClose} aria-label="Close">
+        <button className="crop-close-btn" onClick={() => (onClose ? onClose() : navigate("/dashboard"))} aria-label="Close">
           <CloseIcon size={24} />
         </button>
       </div>

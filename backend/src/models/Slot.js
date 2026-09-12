@@ -16,6 +16,11 @@ const slotSchema = new mongoose.Schema(
       required: [true, "Farmer ID is required"],
       index: true,
     },
+    ticketId: {
+      type: String,
+      required: true,
+      index: true,
+    },
     date: {
       type: String,
       required: [true, "Date is required"],

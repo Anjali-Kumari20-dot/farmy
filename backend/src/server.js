@@ -9,6 +9,7 @@ const { connectDB, disconnectDB } = require("./config/db");
 const authRoutes = require("./routes/auth");
 const slotRoutes = require("./routes/slot");
 const procurementRoutes = require("./routes/procurements");
+const ticketRoutes = require("./routes/tickets");
 const smsService = require("./services/smsService");
 const { apiLimiter } = require("./middleware/rateLimiter");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
@@ -57,6 +58,7 @@ app.use("/api", apiLimiter);
 // Do not let Mongoose buffer requests while the database is unavailable.
 // A clear 503 is preferable to a misleading multi-second query timeout.
 app.use("/api", (req, res, next) => {
+	console.log(mongoose.connection.readyState);
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({
       success: false,
@@ -70,6 +72,7 @@ app.use("/api", (req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/slots", slotRoutes);
 app.use("/api/procurements", procurementRoutes);
+app.use("/api/tickets", ticketRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

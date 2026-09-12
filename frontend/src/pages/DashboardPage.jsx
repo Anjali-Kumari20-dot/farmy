@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { getAvailableSlots, bookSlot, getMySlots, cancelSlot } from "../api/slots";
+import { getMyTickets } from "../api/tickets";
 import BrandLogo from "../components/common/BrandLogo";
 import {
   CalendarIcon,
@@ -16,8 +17,6 @@ import {
 } from "../components/common/Icons";
 import "./Dashboard.css";
 
-const CROPS = ["Wheat", "Paddy / Rice", "Mustard", "Maize", "Cotton", "Soybean", "Pulses"];
-
 function DashboardPage() {
   const navigate = useNavigate();
   const { farmer, logout } = useAuth();
@@ -27,8 +26,8 @@ function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [selectedCrop, setSelectedCrop] = useState("Wheat");
-  const [quantity, setQuantity] = useState("25");
+  const [tickets, setTickets] = useState([]);
+  const [selectedTicketId, setSelectedTicketId] = useState("");
 
   // Slots List & Loading State
   const [myBookings, setMyBookings] = useState([]);
@@ -68,6 +67,15 @@ function DashboardPage() {
     }
   }, []);
 
+  const loadMyTickets = useCallback(async () => {
+    try {
+      const res = await getMyTickets();
+      if (res.success) setTickets(res.tickets);
+    } catch (err) {
+      console.error("Error loading tickets:", err);
+    }
+  }, []);
+
   useEffect(() => {
     loadAvailableSlots(selectedDate);
   }, [selectedDate, loadAvailableSlots]);
@@ -76,13 +84,17 @@ function DashboardPage() {
     loadMyBookings();
   }, [loadMyBookings]);
 
+  useEffect(() => {
+    loadMyTickets();
+  }, [loadMyTickets]);
+
   // Handle Book Slot
   const handleBookSlot = async (e) => {
     e.preventDefault();
     setFeedback({ type: "", message: "" });
 
-    if (!selectedSlot) {
-      setFeedback({ type: "error", message: "Please select an available time slot." });
+    if (!selectedTicketId || !selectedSlot) {
+      setFeedback({ type: "error", message: "Select an active procurement ticket and an available time slot." });
       return;
     }
 
@@ -91,8 +103,7 @@ function DashboardPage() {
       await bookSlot({
         date: selectedDate,
         timeSlot: selectedSlot,
-        cropType: selectedCrop,
-        quantityQuintals: quantity,
+        ticketId: selectedTicketId,
       });
 
       setFeedback({
@@ -100,8 +111,10 @@ function DashboardPage() {
         message: `Slot booked successfully for ${selectedDate} (${selectedSlot}).`,
       });
       setSelectedSlot("");
+      setSelectedTicketId("");
       loadAvailableSlots(selectedDate);
       loadMyBookings();
+      loadMyTickets();
     } catch (err) {
       setFeedback({ type: "error", message: err.message });
     } finally {
@@ -234,37 +247,23 @@ function DashboardPage() {
                 />
               </div>
 
-              {/* Crop & Quantity */}
-              <div className="dash-two-col">
-                <div className="dash-input-group">
-                  <label htmlFor="crop-type">CROP TYPE*</label>
-                  <select
-                    id="crop-type"
-                    value={selectedCrop}
-                    onChange={(e) => setSelectedCrop(e.target.value)}
-                    className="dash-control"
-                  >
-                    {CROPS.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="dash-input-group">
-                  <label htmlFor="crop-qty">ESTIMATED QTY (QUINTALS)*</label>
-                  <input
-                    id="crop-qty"
-                    type="number"
-                    min="1"
-                    max="500"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    required
-                    className="dash-control"
-                  />
-                </div>
+              <div className="dash-input-group">
+                <label htmlFor="procurement-ticket">PROCUREMENT TICKET*</label>
+                <select
+                  id="procurement-ticket"
+                  value={selectedTicketId}
+                  onChange={(e) => setSelectedTicketId(e.target.value)}
+                  required
+                  className="dash-control"
+                >
+                  <option value="">Select a submitted procurement ticket</option>
+                  {tickets.filter((ticket) => ["submitted", "under_review"].includes(ticket.status)).map((ticket) => (
+                    <option key={ticket.ticketId} value={ticket.ticketId}>
+                      {ticket.ticketId} — {ticket.crop} ({ticket.expectedWeightQuintals} Qtl)
+                    </option>
+                  ))}
+                </select>
+                {tickets.length === 0 && <p className="loading-note">Submit the produce intake form before booking a slot.</p>}
               </div>
 
               {/* Time Slots Selection */}
@@ -302,7 +301,7 @@ function DashboardPage() {
               <button
                 type="submit"
                 className="confirm-booking-btn"
-                disabled={isBooking || !selectedSlot}
+                disabled={isBooking || !selectedSlot || !selectedTicketId}
               >
                 {isBooking ? "BOOKING SLOT..." : "CONFIRM SLOT BOOKING"}
               </button>

@@ -4,6 +4,9 @@ import "./SchedulePage.css";
 
 // Modal overlay that wraps the MSP price matrix table
 function SchedulePage({ onClose }) {
+  const navigate = useNavigate();
+  const handleClose = () => (onClose ? onClose() : navigate("/dashboard"));
+
   return (
     <div
       className="schedule-overlay"
@@ -14,7 +17,7 @@ function SchedulePage({ onClose }) {
       <section className="schedule-modal">
         <button
           className="schedule-close"
-          onClick={onClose}
+          onClick={handleClose}
           aria-label="Close schedule"
         >
           <CloseIcon size={20} />
@@ -27,3 +30,4 @@ function SchedulePage({ onClose }) {
 }
 
 export default SchedulePage;
+import { useNavigate } from "react-router-dom";

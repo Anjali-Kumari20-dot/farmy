@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import {
   SproutIcon,
@@ -59,10 +60,10 @@ const FEATURES = [
   {
     number: "04",
     iconClass: "blue",
-    title: "LIVE TOKEN QUEUE STATUS",
+    title: "PROCUREMENT TICKET STATUS",
     description:
-      "Monitor live weighbridge gate countdowns, track truck convoy queue positions, and view active token numbers.",
-    action: "Track Live Queue",
+      "Use your unique procurement ticket to track review, slot booking, scheduling, and completion status.",
+    action: "Check Ticket Status",
   },
   {
     number: "05",
@@ -83,9 +84,10 @@ const FEATURES = [
 ];
 
 // Features that open an overlay panel when clicked
-const CLICKABLE_FEATURES = new Set(["01", "02", "03"]);
+const CLICKABLE_FEATURES = new Set(["01", "02", "03", "04"]);
 
 function LandingPage() {
+  const navigate = useNavigate();
   const { farmer, logout } = useAuth();
 
   const [showProfile, setShowProfile] = useState(false);
@@ -101,7 +103,8 @@ function LandingPage() {
   const handleFeatureClick = (number) => {
     if (number === "01") setShowSchedule(true);
     if (number === "02") setShowDemand(true);
-    if (number === "03") setShowForm(true);
+    if (number === "03") navigate("/slots");
+    if (number === "04") navigate("/tickets");
   };
 
   return (
@@ -259,7 +262,7 @@ function LandingPage() {
           }}
           onBookSlot={() => {
             setShowDemand(false);
-            setShowForm(true);
+            navigate("/slots");
           }}
         />
       )}

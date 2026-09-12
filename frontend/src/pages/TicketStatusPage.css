@@ -1,0 +1,22 @@
+.ticket-page { min-height: 100vh; background: #f6f3ea; color: #173f34; }
+.ticket-header { display:flex; justify-content:space-between; align-items:center; padding: 22px 6vw; background:#fffdf7; border-bottom:1px solid #ded7c8; }
+.ticket-header button { border:0; background:transparent; color:#07543e; font-weight:700; cursor:pointer; }
+.ticket-panel { max-width:760px; margin:55px auto; padding:40px; background:#fffdf7; border:1px solid #ded7c8; border-radius:24px; box-shadow:0 10px 35px #173f3412; }
+.ticket-eyebrow { color:#a27b3f; font-weight:800; font-size:12px; letter-spacing:1px; }
+.ticket-panel h1 { margin:8px 0; font-family:var(--font-serif); font-size:42px; }
+.ticket-lookup { display:flex; gap:10px; margin:28px 0; }
+.ticket-lookup input { flex:1; min-width:0; padding:14px; border:1px solid #cfc7b6; border-radius:10px; font:inherit; }
+.ticket-lookup button { display:flex; align-items:center; gap:8px; border:0; border-radius:10px; padding:0 18px; background:#07543e; color:white; font-weight:700; cursor:pointer; }
+.ticket-error { display:flex; gap:8px; color:#9c2921; }
+.ticket-result { display:grid; gap:17px; padding:22px; border-radius:14px; background:#f3f7ee; }
+.ticket-result div { display:flex; justify-content:space-between; gap:15px; }
+.ticket-result span { color:#637169; text-transform:uppercase; font-size:12px; font-weight:700; }
+.ticket-status { text-transform:capitalize; color:#07543e; }
+.ticket-result ol { margin:5px 0 0; padding-left:22px; }
+.ticket-result li { margin:12px 0; padding-left:5px; }
+.ticket-result li span { display:block; margin-top:4px; text-transform:none; font-weight:400; }
+.ticket-list { margin-top:30px; }
+.ticket-list button { width:100%; display:flex; justify-content:space-between; margin:8px 0; padding:14px; border:1px solid #ded7c8; border-radius:9px; background:white; cursor:pointer; text-align:left; }
+.ticket-list span { text-transform:capitalize; color:#07543e; }
+.ticket-empty { margin-top:28px; color:#637169; }
+@media (max-width:600px) { .ticket-panel { margin:20px 12px; padding:25px; } .ticket-header { padding:18px; } .ticket-lookup { flex-direction:column; } .ticket-lookup button { justify-content:center; padding:14px; } }

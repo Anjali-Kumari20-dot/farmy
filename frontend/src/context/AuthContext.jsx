@@ -53,6 +53,11 @@ export function AuthProvider({ children }) {
     localStorage.setItem("farmy_farmer", JSON.stringify(farmerData));
   };
 
+  const updateFarmer = (farmerData) => {
+    setFarmer(farmerData);
+    localStorage.setItem("farmy_farmer", JSON.stringify(farmerData));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -61,6 +66,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!token,
         loading,
         login,
+        updateFarmer,
         logout,
       }}
     >

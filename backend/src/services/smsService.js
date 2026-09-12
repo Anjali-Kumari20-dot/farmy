@@ -10,6 +10,7 @@ class SmsService {
     this.twilioAccountSid = process.env.TWILIO_ACCOUNT_SID || process.env.TWILIO_SID;
     this.twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
     this.twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+    this.twilioVerifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
     this.twilioClient =
       this.twilioAccountSid && this.twilioAuthToken
         ? twilio(this.twilioAccountSid, this.twilioAuthToken)
@@ -19,18 +20,34 @@ class SmsService {
   getStatus() {
     const configured =
       this.provider === "twilio"
-        ? Boolean(this.twilioClient && this.twilioPhoneNumber)
+        ? Boolean(this.twilioClient && this.twilioVerifyServiceSid)
         : this.provider === "fast2sms"
           ? Boolean(this.fast2smsApiKey)
           : true;
 
-    return { provider: this.provider, configured };
+    return {
+      provider: this.provider,
+      otpChannel: this.provider === "twilio" ? "verify" : this.provider,
+      configured,
+    };
+  }
+
+  usesTwilioVerify() {
+    return this.provider === "twilio";
+  }
+
+  _formatIndianPhoneNumber(mobileNumber) {
+    return mobileNumber.startsWith("+") ? mobileNumber : `+91${mobileNumber}`;
   }
 
   /**
    * Send an OTP SMS for registration or password reset
    */
   async sendOtpSms(mobileNumber, otp, purpose = "registration") {
+    if (this.usesTwilioVerify()) {
+      return this._startTwilioVerification(mobileNumber);
+    }
+
     const actionText =
       purpose === "reset_password"
         ? "password reset"
@@ -38,6 +55,65 @@ class SmsService {
     const message = `Your Farmy verification code is: ${otp}. Valid for 5 minutes for ${actionText}. Do not share this OTP with anyone.`;
 
     return this._dispatchSms(mobileNumber, message, { type: "OTP", otp });
+  }
+
+  async verifyOtp(mobileNumber, code) {
+    if (!this.usesTwilioVerify()) {
+      return { success: false, error: "Twilio Verify is not the active OTP provider." };
+    }
+
+    if (!this.twilioClient || !this.twilioVerifyServiceSid) {
+      return {
+        success: false,
+        error: "Twilio Verify requires TWILIO_ACCOUNT_SID (or TWILIO_SID), TWILIO_AUTH_TOKEN, and TWILIO_VERIFY_SERVICE_SID.",
+      };
+    }
+
+    try {
+      const verification = await this.twilioClient.verify.v2
+        .services(this.twilioVerifyServiceSid)
+        .verificationChecks.create({
+          to: this._formatIndianPhoneNumber(mobileNumber),
+          code,
+        });
+
+      return {
+        success: true,
+        approved: verification.status === "approved",
+        provider: "twilio-verify",
+      };
+    } catch (error) {
+      console.error("[Twilio Verify Error]", error.message);
+      return { success: false, provider: "twilio-verify", error: error.message };
+    }
+  }
+
+  async _startTwilioVerification(mobileNumber) {
+    if (!this.twilioClient || !this.twilioVerifyServiceSid) {
+      return {
+        success: false,
+        provider: "twilio-verify",
+        error: "Twilio Verify requires TWILIO_ACCOUNT_SID (or TWILIO_SID), TWILIO_AUTH_TOKEN, and TWILIO_VERIFY_SERVICE_SID.",
+      };
+    }
+
+    try {
+      const verification = await this.twilioClient.verify.v2
+        .services(this.twilioVerifyServiceSid)
+        .verifications.create({
+          to: this._formatIndianPhoneNumber(mobileNumber),
+          channel: "sms",
+        });
+
+      return {
+        success: verification.status === "pending",
+        provider: "twilio-verify",
+        status: verification.status,
+      };
+    } catch (error) {
+      console.error("[Twilio Verify Error]", error.message);
+      return { success: false, provider: "twilio-verify", error: error.message };
+    }
   }
 
   /**
@@ -191,15 +267,13 @@ class SmsService {
    * Twilio implementation via HTTPS Basic Auth
    */
   async _sendViaTwilio(mobileNumber, message) {
-    const formattedTo = mobileNumber.startsWith("+")
-      ? mobileNumber
-      : `+91${mobileNumber}`;
+    const formattedTo = this._formatIndianPhoneNumber(mobileNumber);
 
     try {
       const result = await this.twilioClient.messages.create({
-        From: this.twilioPhoneNumber,
-        To: formattedTo,
-        Body: message,
+        from: this.twilioPhoneNumber,
+        to: formattedTo,
+        body: message,
       });
 
       console.log(`[Twilio] Dispatched to ${formattedTo}, SID: ${result.sid}`);
