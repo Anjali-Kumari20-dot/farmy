@@ -10,7 +10,7 @@ function BrandLogo({ title = "AGRICULTURE", icon }) {
       </div>
       <span className="brand-logo-title">{title}</span>
     </div>
-  ); l
+  );
 }
 
 export default BrandLogo;
