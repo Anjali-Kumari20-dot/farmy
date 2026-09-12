@@ -7,7 +7,7 @@ import { updateFarmerIdentity } from "../../api/auth";
 import "./ProcurementForm.css";
 
 // Produce intake form — pre-fills farmer identity from auth context
-function ProcurementForm() {
+function ProcurementForm({ onTicketCreated }) {
   const { farmer, updateFarmer } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -72,6 +72,11 @@ function ProcurementForm() {
         <div className={`pf-feedback ${feedback.type}`} role={feedback.type === "error" ? "alert" : "status"}>
           <p>{feedback.message}</p>
           {feedback.ticketId && <strong>Your ticket ID: {feedback.ticketId}</strong>}
+          {feedback.ticketId && onTicketCreated && (
+            <button type="button" className="pf-ticket-cta" onClick={onTicketCreated}>
+              BOOK A SLOT WITH THIS TICKET <ArrowRightIcon size={16} />
+            </button>
+          )}
         </div>
       )}
 

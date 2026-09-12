@@ -144,6 +144,7 @@ function DashboardPage() {
   };
 
   const activeBookingsCount = myBookings.filter((b) => b.status === "booked").length;
+  const bookableTickets = tickets.filter((ticket) => ["submitted", "under_review"].includes(ticket.status));
 
   return (
     <div className="dashboard-container">
@@ -229,7 +230,7 @@ function DashboardPage() {
           <section className="dashboard-card booking-panel">
             <div className="panel-header">
               <h2>Schedule Procurement Slot</h2>
-              <p>Select your preferred date and available center time slot.</p>
+              <p>Select a procurement ticket, then choose your preferred date and available center time slot.</p>
             </div>
 
             <form onSubmit={handleBookSlot}>
@@ -257,13 +258,20 @@ function DashboardPage() {
                   className="dash-control"
                 >
                   <option value="">Select a submitted procurement ticket</option>
-                  {tickets.filter((ticket) => ["submitted", "under_review"].includes(ticket.status)).map((ticket) => (
+                  {bookableTickets.map((ticket) => (
                     <option key={ticket.ticketId} value={ticket.ticketId}>
                       {ticket.ticketId} — {ticket.crop} ({ticket.expectedWeightQuintals} Qtl)
                     </option>
                   ))}
                 </select>
-                {tickets.length === 0 && <p className="loading-note">Submit the produce intake form before booking a slot.</p>}
+                {bookableTickets.length === 0 && (
+                  <div className="ticket-required-note">
+                    <p>You need a produce-intake ticket before reserving a slot.</p>
+                    <button type="button" onClick={() => navigate("/form", { state: { returnTo: "/slots" } })}>
+                      CREATE PRODUCE INTAKE
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Time Slots Selection */}

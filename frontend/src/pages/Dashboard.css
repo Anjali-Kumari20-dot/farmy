@@ -230,6 +230,35 @@
   margin-bottom: 20px;
 }
 
+.ticket-required-note {
+  margin-top: 10px;
+  padding: 13px;
+  border: 1px solid #d8bd8a;
+  border-radius: 10px;
+  background: #f8f1df;
+}
+
+.ticket-required-note p {
+  margin: 0 0 9px;
+  color: #53645c;
+  font-size: 13px;
+}
+
+.ticket-required-note button {
+  border: 0;
+  background: transparent;
+  color: #07543e;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ticket-required-note button:hover {
+  text-decoration: underline;
+}
+
 .dash-input-group label {
   display: block;
   font-size: 11px;

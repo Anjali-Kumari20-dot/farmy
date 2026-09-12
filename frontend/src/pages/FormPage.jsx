@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ProcurementForm from "../components/procurement/ProcurementForm";
 import { CloseIcon } from "../components/common/Icons";
 import "./FormPage.css";
@@ -6,7 +6,9 @@ import "./FormPage.css";
 // Full-page wrapper for the produce intake form
 function FormPage({ onClose }) {
   const navigate = useNavigate();
-  const handleClose = () => (onClose ? onClose() : navigate("/dashboard"));
+  const location = useLocation();
+  const returnTo = location.state?.returnTo || "/dashboard";
+  const handleClose = () => (onClose ? onClose() : navigate(returnTo));
 
   return (
     <div className="form-page-overlay">
@@ -14,7 +16,7 @@ function FormPage({ onClose }) {
         <button type="button" className="form-page-close" onClick={handleClose} aria-label="Close form">
           <CloseIcon size={20} />
         </button>
-        <ProcurementForm />
+        <ProcurementForm onTicketCreated={() => navigate(returnTo)} />
       </div>
     </div>
   );

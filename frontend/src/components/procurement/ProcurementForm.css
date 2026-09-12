@@ -193,6 +193,25 @@
   color: #8c2a22;
 }
 
+.pf-ticket-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  border: 0;
+  background: transparent;
+  color: #07543e;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pf-ticket-cta:hover {
+  text-decoration: underline;
+}
+
 /* Responsive */
 
 @media (max-width: 650px) {
