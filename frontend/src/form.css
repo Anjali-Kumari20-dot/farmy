@@ -185,6 +185,12 @@
   color: #b4b7b3;
 }
 
+.field-error {
+  margin: 6px 0 0;
+  color: #a33c3c;
+  font-size: 12px;
+}
+
 .form-field input:focus,
 .form-field select:focus {
   border-color: #b99548;

@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Form from "./form";
+import Schedule from "./schedule";
+import CropDemand from "./demand";
 import "./Landing.css";
 
 function Landing() {
   const [showProfile, setShowProfile] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [showDemand, setShowDemand] = useState(false);
   const [profile] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("farmy-profile")) || {};
@@ -280,8 +284,14 @@ function Landing() {
                 if (feature.number === "03") {
                   setShowForm(true);
                 }
+                if (feature.number === "01") {
+                  setShowSchedule(true);
+                }
+                if (feature.number === "02") {
+                  setShowDemand(true);
+                }
               }}
-              style={{ cursor: feature.number === "03" ? "pointer" : "default" }}
+              style={{ cursor: ["01", "02", "03"].includes(feature.number) ? "pointer" : "default" }}
             >
 
               {feature.badge && (
@@ -318,6 +328,12 @@ function Landing() {
                   if (feature.number === "03") {
                     setShowForm(true);
                   }
+                  if (feature.number === "01") {
+                    setShowSchedule(true);
+                  }
+                  if (feature.number === "02") {
+                    setShowDemand(true);
+                  }
                 }}
               >
                 {feature.action}
@@ -333,6 +349,15 @@ function Landing() {
       </main>
 
       {showForm ? <Form onClose={() => setShowForm(false)} /> : null}
+      {showSchedule ? <Schedule onClose={() => setShowSchedule(false)} /> : null}
+      {showDemand ? (
+        <CropDemand
+          onClose={() => setShowDemand(false)}
+          onOpenSchedule={() => setShowSchedule(true)}
+          onOpenForm={() => setShowForm(true)}
+          onBookSlot={() => setShowForm(true)}
+        />
+      ) : null}
 
 
       {/* ================= QUICK SWITCH ================= */}

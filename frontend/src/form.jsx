@@ -29,9 +29,27 @@ function Form({ onClose }) {
       };
     }
   });
+  const [bankErrors, setBankErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "bankAccount") {
+      const digits = value.replace(/\D/g, "").slice(0, 16);
+      const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+
+      setFormData((prev) => ({ ...prev, bankAccount: formatted }));
+      setBankErrors((prev) => ({ ...prev, bankAccount: "" }));
+      return;
+    }
+
+    if (name === "ifsc") {
+      const normalized = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11);
+
+      setFormData((prev) => ({ ...prev, ifsc: normalized }));
+      setBankErrors((prev) => ({ ...prev, ifsc: "" }));
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -41,6 +59,22 @@ function Form({ onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const accountDigits = formData.bankAccount.replace(/\s/g, "");
+    const errors = {};
+
+    if (!/^\d{16}$/.test(accountDigits)) {
+      errors.bankAccount = "Account number must contain exactly 16 digits.";
+    }
+
+    if (!/^[A-Z]{4}0\d{6}$/.test(formData.ifsc)) {
+      errors.ifsc = "IFSC must be 4 capital letters, 0, and 6 digits.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setBankErrors(errors);
+      return;
+    }
 
     console.log("Procurement form submitted:", formData);
 
@@ -306,9 +340,14 @@ function Form({ onClose }) {
               name="bankAccount"
               value={formData.bankAccount}
               onChange={handleChange}
-              placeholder="Enter bank account number"
+              placeholder="1234 5678 9012 3456"
+              inputMode="numeric"
+              maxLength={19}
               required
             />
+            {bankErrors.bankAccount ? (
+              <p className="field-error">{bankErrors.bankAccount}</p>
+            ) : null}
           </div>
 
           {/* IFSC */}
@@ -320,9 +359,13 @@ function Form({ onClose }) {
               name="ifsc"
               value={formData.ifsc}
               onChange={handleChange}
-              placeholder="ENTER IFSC CODE"
+              placeholder="ABCD0123456"
+              maxLength={11}
               required
             />
+            {bankErrors.ifsc ? (
+              <p className="field-error">{bankErrors.ifsc}</p>
+            ) : null}
           </div>
 
           {/* Submit */}

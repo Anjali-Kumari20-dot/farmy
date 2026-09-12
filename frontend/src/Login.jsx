@@ -438,7 +438,7 @@ function Login() {
           {/* REGISTER LINK */}
           <p className="register-text">
             Don't have an account?
-            <Link to="/">
+            <Link to="/register">
               {" "}Create an account.
             </Link>
           </p>
