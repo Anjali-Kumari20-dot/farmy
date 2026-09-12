@@ -1,4 +1,3 @@
-import React from "react";
 import "./DecorativeLeaves.css";
 
 function DecorativeLeaves({ className = "" }) {

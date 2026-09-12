@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/farmy";
+  console.log("[debug] Attempting to connect to MongoDB at:", mongoUri);
 
   const options = {
     autoIndex: true, // build indexes defined in schemas

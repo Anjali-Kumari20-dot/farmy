@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getCurrentFarmer } from "../api/auth";
-
-const AuthContext = createContext(null);
+import { AuthContext } from "./AuthStateContext";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("farmy_token") || null);
@@ -14,6 +13,13 @@ export function AuthProvider({ children }) {
     }
   });
   const [loading, setLoading] = useState(true);
+
+  function logout() {
+    setToken(null);
+    setFarmer(null);
+    localStorage.removeItem("farmy_token");
+    localStorage.removeItem("farmy_farmer");
+  }
 
   // Validate stored token on mount
   useEffect(() => {
@@ -47,13 +53,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem("farmy_farmer", JSON.stringify(farmerData));
   };
 
-  const logout = () => {
-    setToken(null);
-    setFarmer(null);
-    localStorage.removeItem("farmy_token");
-    localStorage.removeItem("farmy_farmer");
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -68,12 +67,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }

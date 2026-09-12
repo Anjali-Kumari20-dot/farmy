@@ -75,6 +75,14 @@ router.post(
     // Dispatch via pluggable SMS service (Fast2SMS / Twilio / Mock logger)
     const smsResult = await smsService.sendOtpSms(mobileNumber, generatedOtp, purpose);
 
+    if (!smsResult.success) {
+      await Otp.deleteMany({ mobileNumber, purpose });
+      return res.status(502).json({
+        success: false,
+        error: "Unable to send the verification SMS. Please check the SMS provider configuration and try again.",
+      });
+    }
+
     res.json({
       success: true,
       message: `OTP sent successfully to +91 ${mobileNumber}.`,
@@ -178,8 +186,8 @@ router.post(
       purpose: "registration",
     });
 
-    // Check if verified or matching
-    if (!otpRecord || (!otpRecord.verified && otpRecord.otp !== otp)) {
+    // The OTP must have been verified through the dedicated verification endpoint.
+    if (!otpRecord || !otpRecord.verified) {
       return res.status(400).json({
         success: false,
         error: "Mobile number has not been verified with OTP.",
@@ -294,7 +302,7 @@ router.post(
       purpose: "reset_password",
     });
 
-    if (!otpRecord || (!otpRecord.verified && otpRecord.otp !== otp)) {
+    if (!otpRecord || !otpRecord.verified) {
       return res.status(400).json({
         success: false,
         error: "OTP verification required before resetting password.",

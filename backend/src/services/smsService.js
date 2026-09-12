@@ -1,14 +1,30 @@
 const https = require("https");
 const twilio = require("twilio");
 
-/* SMS service: twilio */
+/* SMS service: Twilio, Fast2SMS, or local development mock */
 class SmsService {
   constructor() {
     this.provider = (process.env.SMS_PROVIDER || "mock").toLowerCase();
     this.fast2smsApiKey = process.env.FAST2SMS_API_KEY;
-    this.twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
+    // TWILIO_SID is supported for existing local configurations.
+    this.twilioAccountSid = process.env.TWILIO_ACCOUNT_SID || process.env.TWILIO_SID;
     this.twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
     this.twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+    this.twilioClient =
+      this.twilioAccountSid && this.twilioAuthToken
+        ? twilio(this.twilioAccountSid, this.twilioAuthToken)
+        : null;
+  }
+
+  getStatus() {
+    const configured =
+      this.provider === "twilio"
+        ? Boolean(this.twilioClient && this.twilioPhoneNumber)
+        : this.provider === "fast2sms"
+          ? Boolean(this.fast2smsApiKey)
+          : true;
+
+    return { provider: this.provider, configured };
   }
 
   /**
@@ -77,12 +93,16 @@ class SmsService {
     }
 
     // 2. Twilio Provider
-    if (
-      this.provider === "twilio" &&
-      this.twilioAccountSid &&
-      this.twilioAuthToken
-    ) {
+    if (this.provider === "twilio" && this.twilioClient && this.twilioPhoneNumber) {
       return this._sendViaTwilio(cleanNumber, message);
+    }
+
+    if (this.provider === "twilio") {
+      return {
+        success: false,
+        provider: "twilio",
+        error: "Twilio requires TWILIO_ACCOUNT_SID (or TWILIO_SID), TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER.",
+      };
     }
 
     // 3. Fallback / Mock Dev Provider
@@ -170,65 +190,24 @@ class SmsService {
   /**
    * Twilio implementation via HTTPS Basic Auth
    */
-  _sendViaTwilio(mobileNumber, message) {
-    return new Promise((resolve) => {
-      const formattedTo = mobileNumber.startsWith("+")
-        ? mobileNumber
-        : `+91${mobileNumber}`;
-      const postData = new URLSearchParams({
+  async _sendViaTwilio(mobileNumber, message) {
+    const formattedTo = mobileNumber.startsWith("+")
+      ? mobileNumber
+      : `+91${mobileNumber}`;
+
+    try {
+      const result = await this.twilioClient.messages.create({
         From: this.twilioPhoneNumber,
         To: formattedTo,
         Body: message,
-      }).toString();
-
-      const auth = Buffer.from(
-        `${this.twilioAccountSid}:${this.twilioAuthToken}`,
-      ).toString("base64");
-
-      const options = {
-        hostname: "api.twilio.com",
-        path: `/2010-04-01/Accounts/${this.twilioAccountSid}/Messages.json`,
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${auth}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Content-Length": Buffer.byteLength(postData),
-        },
-      };
-
-      const req = https.request(options, (res) => {
-        let body = "";
-        res.on("data", (chunk) => (body += chunk));
-        res.on("end", () => {
-          try {
-            const parsed = JSON.parse(body);
-            if (parsed.sid) {
-              console.log(
-                `[Twilio] Dispatched to ${formattedTo}, SID: ${parsed.sid}`,
-              );
-              resolve({ success: true, provider: "twilio", sid: parsed.sid });
-            } else {
-              console.warn(`[Twilio Warning] ${parsed.message || body}`);
-              resolve({
-                success: false,
-                provider: "twilio",
-                error: parsed.message,
-              });
-            }
-          } catch (e) {
-            resolve({ success: false, provider: "twilio", raw: body });
-          }
-        });
       });
 
-      req.on("error", (err) => {
-        console.error("[Twilio Error]", err.message);
-        resolve({ success: false, provider: "twilio", error: err.message });
-      });
-
-      req.write(postData);
-      req.end();
-    });
+      console.log(`[Twilio] Dispatched to ${formattedTo}, SID: ${result.sid}`);
+      return { success: true, provider: "twilio", sid: result.sid };
+    } catch (error) {
+      console.error("[Twilio Error]", error.message);
+      return { success: false, provider: "twilio", error: error.message };
+    }
   }
 }
 

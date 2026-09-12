@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect -- async API loaders update state after the request starts. */
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { getAvailableSlots, bookSlot, getMySlots, cancelSlot } from "../api/slots";
 import BrandLogo from "../components/common/BrandLogo";
 import {

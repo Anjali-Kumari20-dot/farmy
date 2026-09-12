@@ -4,7 +4,7 @@ import InputField from "../common/InputField";
 import DecorativeLeaves from "../common/DecorativeLeaves";
 import { WheatIcon, PhoneIcon, LockIcon, AlertCircleIcon } from "../common/Icons";
 import { loginFarmer } from "../../api/auth";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import "./AuthForms.css";
 
 function LoginForm({ onForgotPassword }) {

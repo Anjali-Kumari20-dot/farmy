@@ -8,6 +8,8 @@ const cors = require("cors");
 const { connectDB, disconnectDB } = require("./config/db");
 const authRoutes = require("./routes/auth");
 const slotRoutes = require("./routes/slot");
+const procurementRoutes = require("./routes/procurements");
+const smsService = require("./services/smsService");
 const { apiLimiter } = require("./middleware/rateLimiter");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
 
@@ -36,7 +38,7 @@ app.use(
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        callback(null, true); // Dev fallback
+        callback(null, false);
       }
     },
     credentials: true,
@@ -52,17 +54,31 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 // 4. Rate limiting on all API routes
 app.use("/api", apiLimiter);
 
+// Do not let Mongoose buffer requests while the database is unavailable.
+// A clear 503 is preferable to a misleading multi-second query timeout.
+app.use("/api", (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      success: false,
+      error: "Database is unavailable. Start MongoDB or configure MONGO_URI, then try again.",
+    });
+  }
+  next();
+});
+
 // 5. Route mounting
 app.use("/api/auth", authRoutes);
 app.use("/api/slots", slotRoutes);
+app.use("/api/procurements", procurementRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
+  const databaseConnected = mongoose.connection.readyState === 1;
   res.json({
-    status: "healthy",
+    status: databaseConnected ? "healthy" : "degraded",
     timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    smsProvider: (process.env.SMS_PROVIDER || "mock").toLowerCase(),
+    database: databaseConnected ? "connected" : "disconnected",
+    sms: smsService.getStatus(),
   });
 });
 

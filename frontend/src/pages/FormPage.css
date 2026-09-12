@@ -1,0 +1,24 @@
+/* FormPage: overlay wrapper for procurement form */
+
+.form-page-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: #004532;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+
+.form-page-inner {
+  width: 100%;
+  max-width: 660px;
+}
+
+@media (max-width: 650px) {
+  .form-page-overlay {
+    padding: 10px;
+  }
+}

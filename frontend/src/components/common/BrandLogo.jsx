@@ -1,4 +1,3 @@
-import React from "react";
 import { SproutIcon } from "./Icons";
 import "./BrandLogo.css";
 

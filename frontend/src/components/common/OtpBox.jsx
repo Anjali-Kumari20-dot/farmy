@@ -1,4 +1,3 @@
-import React from "react";
 import { KeyIcon } from "./Icons";
 import "./OtpBox.css";
 

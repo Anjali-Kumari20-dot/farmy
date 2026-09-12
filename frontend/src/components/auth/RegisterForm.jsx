@@ -13,7 +13,7 @@ import {
   CheckCircleIcon,
 } from "../common/Icons";
 import { sendOtp, verifyOtp, registerFarmer } from "../../api/auth";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import "./AuthForms.css";
 
 function RegisterForm() {
